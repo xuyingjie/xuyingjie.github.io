@@ -1,4 +1,11 @@
-var app = angular.module('app', ['ngRoute']);
+// 分开 app.factory
+// php server end
+// indexedDB.list(), indexedDB.get()
+//
+
+
+
+var app = angular.module('app', ['ngRoute', 'crypto']);
 var url = '/';
 
 // app.config(function($httpProvider) {
@@ -145,7 +152,7 @@ app.controller('SectionController', function($scope, $rootScope, $http, $window,
 
 });
 
-app.controller('LoginController', function($scope, $rootScope, $http, $window, $location) {
+app.controller('LoginController', function($scope, $rootScope, $http, $window, $location, crypto) {
 
   $scope.name = '';
   $scope.passwd = '';
@@ -153,88 +160,34 @@ app.controller('LoginController', function($scope, $rootScope, $http, $window, $
   $scope.login = function() {
     if ($scope.name !== '' && $scope.passwd !== '') {
 
-      var name = String(CryptoJS.SHA256($scope.name));
-      var passwd = String(CryptoJS.SHA256($scope.passwd));
+      var name = crypto.SHA256($scope.name);
+      var passwd = crypto.SHA256($scope.passwd);
 
-      var JsonFormatter = {
-        stringify: function (cipherParams) {
-          // create json object with ciphertext
-          var jsonObj = {
-            ct: cipherParams.ciphertext.toString(CryptoJS.enc.Base64)
-          };
-
-          // optionally add iv and salt
-          if (cipherParams.iv) {
-            jsonObj.iv = cipherParams.iv.toString();
-          }
-          if (cipherParams.salt) {
-            jsonObj.s = cipherParams.salt.toString();
-          }
-
-          // stringify json object
-          return JSON.stringify(jsonObj);
-        },
-
-        parse: function (jsonStr) {
-          // parse json string
-          var jsonObj = JSON.parse(jsonStr);
-
-          // extract ciphertext from json object, and create cipher params object
-          var cipherParams = CryptoJS.lib.CipherParams.create({
-            ciphertext: CryptoJS.enc.Base64.parse(jsonObj.ct)
-          });
-
-          // optionally extract iv and salt
-          if (jsonObj.iv) {
-            cipherParams.iv = CryptoJS.enc.Hex.parse(jsonObj.iv);
-          }
-          if (jsonObj.s) {
-            cipherParams.salt = CryptoJS.enc.Hex.parse(jsonObj.s);
-          }
-
-          return cipherParams;
-        }
-      };
-
-      // var encrypted = CryptoJS.AES.encrypt("", $scope.passwd);
+      // var encrypted = crypto.encrypt("sdfasdf", $scope.passwd);
       // console.log(encrypted);
 
-      $http.jsonp("http://dbmy.oss-cn-beijing.aliyuncs.com/etc/"+ name +"?callback=JSON_CALLBACK").success(function(data){
-        if (data.passwd == passwd){
-          var decrypted = CryptoJS.AES.decrypt(data.token, $scope.passwd, { format: JsonFormatter });
-          var token = decrypted.toString(CryptoJS.enc.Utf8);
-          console.log("token: "+token);
+      $http.jsonp("http://dbmy.oss-cn-beijing.aliyuncs.com/etc/"+ name +"?callback=JSON_CALLBACK")
+        .success(function(data){
+          if (data.passwd == passwd){
+            var token = crypto.decrypt(data.token, $scope.passwd);
+            console.log("token: "+token);
 
-          // 存储到 IndexedDB
-          // $http.defaults.headers.post.Token = token;
-        }
-      });
+            // 存储到 IndexedDB
+            // $http.defaults.headers.post.Token = token;
 
+        //       $rootScope.auth = true;
+        //       if ($rootScope.path) {
+        //         $location.path($rootScope.path).replace();
+        //       } else {
+        //         $location.path('/').replace();
+        //       }
+          }
+        }).error(function(data, err){
+          console.log("err: "+err);
+          console.log("b: "+data);
+        });
 
-
-      //
-      // $http.post(url + "login", {
-      //   name: $scope.name,
-      //   passwd: $scope.passwd
-      // }).success(
-      //   function(data) {
-      //     if (data) {
-      //       // $window.localStorage.name = $scope.name;
-      //       // $window.localStorage.token = data.token;
-      //       // $http.defaults.headers.post.Name = $scope.name;
-      //       // $http.defaults.headers.post.Token = data.token;
-      //       $rootScope.auth = true;
-      //       // console.log($rootScope.path);
-      //       if ($rootScope.path) {
-      //         $location.path($rootScope.path).replace();
-      //       } else {
-      //         $location.path('/').replace();
-      //       }
-      //     }
-      //   }
-      // );
-
-      $scope.passwd = '';
+      // $scope.passwd = '';
     }
   };
 });
@@ -331,56 +284,6 @@ app.controller('PutController', function($scope, $rootScope, $http, $location, $
     }
   }
 
-});
-
-app.factory('aws', function(){
-  AWS.config.update({accessKeyId: 'AKIAJDGCHDGQB55A7Z7Q', secretAccessKey: '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'});
-  AWS.config.region = 'ap-southeast-1';
-  var s3 = new AWS.S3();
-
-  var getlist = function(){
-    var keyStr = [];
-    var params = {Bucket: 'xuyingjie'};
-    s3.listObjects(params, function(err, data){
-      if (err) {
-        return [err, err.stack];
-      } else {
-        data.Contents.forEach(function(i){
-          var k = i.Key;
-          // var t = k.substring(k.indexOf("_")+1, k.length);
-          // console.log(k);
-          // console.log(k.substring(k.indexOf("_")+1, k.length));
-          var t = k;
-          var a = {
-            key: k,
-            title: t
-          };
-          keyStr.push(a);
-        });
-        console.log(keyStr);
-        return keyStr;
-      }
-    });
-  };
-
-  return {
-    list: function(){
-      return getlist();
-    },
-
-    put: function(c){
-      var params = {
-        Bucket: 'xuyingjie',
-        Key: Date.now() + '_' + c.title,
-        Body: c.content
-      };
-      s3.putObject(params, function(err, data){
-        if (err) return err;
-        else     return data;
-      });
-    }
-
-  };
 });
 
 
