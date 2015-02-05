@@ -2,49 +2,65 @@
 // php server end
 // indexedDB.list(), indexedDB.get()
 //
+// 多人实时操作冲突
+// ???React.js
 
 
+// var Dbmy;
+// var JSONP = function(url, callback) {
+//   var script = document.createElement("script");
+//   Dbmy = function(response){
+//     try {
+//       callback(response);
+//     }
+//     finally {
+//       script.parentNode.removeChild(script);
+//     }
+//   };
+//   script.src = url;
+//   document.body.appendChild(script);
+// };
 
-var app = angular.module('app', ['ngRoute', 'crypto']);
+var app = angular.module('app', ['ngRoute', 'crypto', 'indexed']);
 var url = '/';
+var publicKey = 'FrtVDIUvAik';
 
-// app.config(function($httpProvider) {
-//   if (window.localStorage.name && window.localStorage.token) {
-//     $httpProvider.defaults.headers.post.Name = window.localStorage.name;
-//     $httpProvider.defaults.headers.post.Token = window.localStorage.token;
-//   }
-// });
+app.config(function($httpProvider) {
+  if (window.localStorage.token) {
+    $httpProvider.defaults.headers.post.Token = window.localStorage.token;
+  }
+});
 
 app.config(['$routeProvider', function($routeProvider) {
-  $routeProvider
-    .when('/', {
-      templateUrl: 'views/home.html',
-      controller: 'HomeController'
-    })
-    .when('/t/:id', {
-      templateUrl: 'views/section.html',
-      controller: 'SectionController'
-    })
-    .when('/s/:keyword', {
-      templateUrl: 'views/section.html',
-      controller: 'SectionController'
-    })
-    .when('/login', {
-      templateUrl: 'views/login.html',
-      controller: 'LoginController'
-    })
-    .when('/a', {
-      templateUrl: 'views/editor.html',
-      controller: 'PutController'
-    })
-    .when('/e/:id', {
-      templateUrl: 'views/editor.html',
-      controller: 'PutController'
-    });
+    $routeProvider
+      .when('/', {
+        templateUrl: 'views/home.html',
+        controller: 'HomeController'
+      })
+      .when('/t/:id', {
+        templateUrl: 'views/section.html',
+        controller: 'SectionController'
+      })
+      .when('/s/:keyword', {
+        templateUrl: 'views/section.html',
+        controller: 'SectionController'
+      })
+      .when('/login', {
+        templateUrl: 'views/login.html',
+        controller: 'LoginController'
+      })
+      .when('/a', {
+        templateUrl: 'views/editor.html',
+        controller: 'PutController'
+      })
+      .when('/e/:id', {
+        templateUrl: 'views/editor.html',
+        controller: 'PutController'
+      });
 
 }]);
 
-app.controller('NavController', function($scope, $rootScope, $http, $window, $location, $routeParams) {
+app.controller('NavController', function($scope, $rootScope, $http, $window, $location, $routeParams, indexed) {
   $scope.mainput = '';
   $rootScope.auth = false;
   $rootScope.path = '/';
@@ -65,69 +81,65 @@ app.controller('NavController', function($scope, $rootScope, $http, $window, $lo
   };
 
   $scope.logout = function() {
-    $http.post(url + "logout").success(
-      function(data) {
-        if (data) {
-          $window.localStorage.token = 0;
-          $rootScope.auth = false;
-        }
-      }
-    );
+    $window.localStorage.removeItem("token");
+    $rootScope.auth = false;
   };
 
-  (function auth() {
-    $http.post(url + 'auth').success(
-      function(data) {
-        if (data) {
-          $rootScope.auth = true;
-          // $scope.commit = data;
-        } else {
-          $rootScope.auth = false;
-        }
-      }
-    );
-  })();
+  if ($window.localStorage.token) {
+    $rootScope.auth = true;
+  } else {
+    $rootScope.auth = false;
+  }
+
+  //
+  // indexed.get('1423114473853_59', 't')
+  //   .then(function(response){
+  //     console.log(response);
+  //     $scope.mainput = 'sdfsdf';
+  //   });
 
 });
 
-app.controller('HomeController', function($scope, $http, $window, $location, $routeParams, aws) {
+app.controller('HomeController', function($scope, $http, indexed) {
   $scope.title = [];
 
   (function init() {
-
-
-    $http.jsonp("http://dbmy.oss-cn-beijing.aliyuncs.com/dbmy.json?callback=JSON_CALLBACK").success(function(data){
-      console.log(data);
-    });
-
-
-
-
-
-    // $scope.title = aws.list();
-    // console.log($scope.title);
-
-
-    // $http.post(url + 'index', {
-    //   title: 1
-    // }).success(
-    //   function(data) {
-    //     $scope.title = data;
-    //   }
-    // );
+    $http.get("http://dbmy.oss-cn-beijing.aliyuncs.com/etc/dbmy", {
+      cache: false
+    })
+      .success(function(data) {
+        // var keyStr = [];
+        // data.keys.forEach(function(i) {
+        //   console.log(i);
+        //   var t = k.substring(k.indexOf("_")+1, k.length);
+        //   var a = {
+        //     key: i,
+        //     title: t
+        //   };
+        //   keyStr.push(a);
+        // });
+        $scope.title = data.with;
+        indexed.put(data, 'etc');
+      });
   })();
-
 });
 
-app.controller('SectionController', function($scope, $rootScope, $http, $window, $location, $routeParams) {
+app.controller('SectionController', function($scope, $rootScope, $http, $window, $location, $routeParams, indexed) {
   $scope.fragment = [];
 
-  $scope.init = function(data) {
-    $http.post(url + 'get', data).success(
-      function(data) {
-        $scope.fragment = data;
-      }
-    );
+  $scope.init = function(id) {
+    indexed.get(id, 't')
+      .then(function(response) {
+        if (response) {
+          $scope.fragment = [response];
+        } else {
+          $http.get("http://dbmy.oss-cn-beijing.aliyuncs.com/t/" + id)
+            .success(function(res) {
+              indexed.put(res, 't');
+              $scope.fragment = [res];
+            });
+        }
+      });
   };
 
   $scope.e = function(id) {
@@ -136,11 +148,7 @@ app.controller('SectionController', function($scope, $rootScope, $http, $window,
   };
 
   if ($routeParams.id) {
-    data = {
-      id: $routeParams.id,
-      keyword: ''
-    };
-    $scope.init(data);
+    $scope.init($routeParams.id);
   } else if ($routeParams.keyword) {
     $scope.mainput = $routeParams.keyword;
     data = {
@@ -163,36 +171,31 @@ app.controller('LoginController', function($scope, $rootScope, $http, $window, $
       var name = crypto.SHA256($scope.name);
       var passwd = crypto.SHA256($scope.passwd);
 
-      // var encrypted = crypto.encrypt("sdfasdf", $scope.passwd);
-      // console.log(encrypted);
-
-      $http.jsonp("http://dbmy.oss-cn-beijing.aliyuncs.com/etc/"+ name +"?callback=JSON_CALLBACK")
-        .success(function(data){
-          if (data.passwd == passwd){
+      $http.get("http://dbmy.oss-cn-beijing.aliyuncs.com/etc/" + name)
+        .success(function(data) {
+          console.log(data);
+          if (data.passwd == passwd) {
             var token = crypto.decrypt(data.token, $scope.passwd);
-            console.log("token: "+token);
+            var tokenSHA = crypto.SHA256(token);
 
-            // 存储到 IndexedDB
-            // $http.defaults.headers.post.Token = token;
+            $http.defaults.headers.post.Token = tokenSHA;
+            $window.localStorage.token = tokenSHA;
 
-        //       $rootScope.auth = true;
-        //       if ($rootScope.path) {
-        //         $location.path($rootScope.path).replace();
-        //       } else {
-        //         $location.path('/').replace();
-        //       }
+            $rootScope.auth = true;
+            if ($rootScope.path) {
+              $location.path($rootScope.path).replace();
+            } else {
+              $location.path('/').replace();
+            }
+            $scope.passwd = '';
           }
-        }).error(function(data, err){
-          console.log("err: "+err);
-          console.log("b: "+data);
         });
 
-      // $scope.passwd = '';
     }
   };
 });
 
-app.controller('PutController', function($scope, $rootScope, $http, $location, $routeParams, aws) {
+app.controller('PutController', function($scope, $rootScope, $http, $location, $routeParams, crypto, indexed) {
 
   $scope.id = '';
   $scope.title = '';
@@ -218,23 +221,43 @@ app.controller('PutController', function($scope, $rootScope, $http, $location, $
 
   $scope.save = function() {
     if ($scope.title !== '') {
+      var title = crypto.encrypt($scope.title, publicKey);
+      var content = crypto.encrypt($scope.content, publicKey);
+      if ($scope.id === '') {
+        $scope.id = crypto.timeDiff();
+      }
       var data = {
-        title: $scope.title,
-        content: $scope.content,
+        title: title,
+        content: content,
         id: $scope.id
       };
-      var a = aws.put(data);
-      console.log(a);
-      // $http.post(url + "put", data).success(
-      //   function(data) {
-      //     if (data) {
-      //       $location.path('/t/' + data.id).replace();
-      //       $scope.id = '';
-      //       $scope.title = '';
-      //       $scope.content = '';
-      //     }
-      //   }
-      // );
+
+      $http.post("http://dbmy.sinaapp.com/put.php", data).success(function(response) {
+        if (response) {
+          indexed.put(data, 't');
+
+          $http.get("http://dbmy.oss-cn-beijing.aliyuncs.com/etc/dbmy")
+            .success(function(res) {
+              res.version += 1;
+              var add = {
+                title: title,
+                id: $scope.id
+              };
+              res.with.push(add);
+
+              $http.post("http://dbmy.sinaapp.com/put.php", res).success(function(resp) {
+                if (resp) {
+                  indexed.put(res, 'etc');
+                  $location.path('/t/' + $scope.id).replace();
+                  $scope.id = '';
+                  $scope.title = '';
+                  $scope.content = '';
+                }
+              });
+            });
+        }
+      }
+      );
     }
   };
 
@@ -245,7 +268,7 @@ app.controller('PutController', function($scope, $rootScope, $http, $location, $
     var progress = document.getElementById('uploadprogress');
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "upload", true);
-    xhr.upload.onprogress = function (event) {
+    xhr.upload.onprogress = function(event) {
       if (event.lengthComputable) {
         var complete = (event.loaded / event.total * 100 | 0);
         progress.value = progress.innerHTML = complete;
@@ -267,15 +290,15 @@ app.controller('PutController', function($scope, $rootScope, $http, $location, $
     ev.preventDefault();
   }, false);
 
-  function insertText(obj,str) {
+  function insertText(obj, str) {
     if (document.selection) {
       var sel = document.selection.createRange();
       sel.text = str;
     } else if (typeof obj.selectionStart === 'number' && typeof obj.selectionEnd === 'number') {
       var startPos = obj.selectionStart,
-      endPos = obj.selectionEnd,
-      cursorPos = startPos,
-      tmpStr = obj.value;
+        endPos = obj.selectionEnd,
+        cursorPos = startPos,
+        tmpStr = obj.value;
       obj.value = tmpStr.substring(0, startPos) + str + tmpStr.substring(endPos, tmpStr.length);
       cursorPos += str.length;
       obj.selectionStart = obj.selectionEnd = cursorPos;
@@ -286,6 +309,12 @@ app.controller('PutController', function($scope, $rootScope, $http, $location, $
 
 });
 
+
+app.filter('decrypt', function(crypto) {
+  return function(input) {
+    return crypto.decrypt(input, publicKey);
+  };
+});
 
 app.filter('markdown', function() {
   var converter = new Showdown.converter();
