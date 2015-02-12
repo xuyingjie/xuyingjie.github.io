@@ -1,6 +1,5 @@
-// 分开 app.factory
-// php server end
-// indexedDB.list(), indexedDB.get()
+
+// indexedDB缓存。搜索功能
 //
 // 多人实时操作冲突
 // ???React.js
@@ -90,42 +89,42 @@ app.controller('NavController', function($scope, $rootScope, $http, $window, $lo
   } else {
     $rootScope.auth = false;
   }
-
-  //
-  // indexed.get('1423114473853_59', 't')
-  //   .then(function(response){
-  //     console.log(response);
-  //     $scope.mainput = 'sdfsdf';
-  //   });
-
 });
 
-app.controller('HomeController', function($scope, $http, indexed) {
+app.controller('HomeController', function($scope, $rootScope, $http, crypto, indexed) {
   $scope.title = [];
+  $rootScope.all = [];
 
   (function init() {
-    $http.get("http://dbmy.oss-cn-beijing.aliyuncs.com/etc/dbmy", {
+    $http.get("https://dbmy.oss-cn-beijing.aliyuncs.com/etc/dbmy", {
       cache: false
     })
       .success(function(data) {
-        // var keyStr = [];
-        // data.keys.forEach(function(i) {
-        //   console.log(i);
-        //   var t = k.substring(k.indexOf("_")+1, k.length);
-        //   var a = {
-        //     key: i,
-        //     title: t
-        //   };
-        //   keyStr.push(a);
-        // });
         $scope.title = data.with;
         indexed.put(data, 'etc');
+
+        //
+        //
+        data.with.forEach(function(x){
+          $http.get("https://dbmy.oss-cn-beijing.aliyuncs.com/t/" + x.id)
+            .success(function(res) {
+              // console.log("a");
+              var d = {
+                title: crypto.decrypt(res.title, publicKey),
+                content: crypto.decrypt(res.content, publicKey),
+                id: res.id
+              };
+              indexed.put(d, 't');
+              $rootScope.all.push(d);
+            });
+        });
       });
   })();
 });
 
-app.controller('SectionController', function($scope, $rootScope, $http, $window, $location, $routeParams, indexed) {
+app.controller('SectionController', function($scope, $rootScope, $http, $window, $location, $routeParams, crypto, indexed) {
   $scope.fragment = [];
+  $scope.query = '';
 
   $scope.init = function(id) {
     indexed.get(id, 't')
@@ -133,10 +132,15 @@ app.controller('SectionController', function($scope, $rootScope, $http, $window,
         if (response) {
           $scope.fragment = [response];
         } else {
-          $http.get("http://dbmy.oss-cn-beijing.aliyuncs.com/t/" + id)
+          $http.get("https://dbmy.oss-cn-beijing.aliyuncs.com/t/" + id)
             .success(function(res) {
-              indexed.put(res, 't');
-              $scope.fragment = [res];
+              var d = {
+                title: crypto.decrypt(res.title, publicKey),
+                content: crypto.decrypt(res.content, publicKey),
+                id: res.id
+              };
+              indexed.put(d, 't');
+              $scope.fragment = [d];
             });
         }
       });
@@ -150,12 +154,8 @@ app.controller('SectionController', function($scope, $rootScope, $http, $window,
   if ($routeParams.id) {
     $scope.init($routeParams.id);
   } else if ($routeParams.keyword) {
-    $scope.mainput = $routeParams.keyword;
-    data = {
-      id: '',
-      keyword: $routeParams.keyword
-    };
-    $scope.init(data);
+    $scope.query = $routeParams.keyword;
+    $scope.fragment = $rootScope.all;
   }
 
 });
@@ -171,7 +171,7 @@ app.controller('LoginController', function($scope, $rootScope, $http, $window, $
       var name = crypto.SHA256($scope.name);
       var passwd = crypto.SHA256($scope.passwd);
 
-      $http.get("http://dbmy.oss-cn-beijing.aliyuncs.com/etc/" + name)
+      $http.get("https://dbmy.oss-cn-beijing.aliyuncs.com/etc/" + name)
         .success(function(data) {
           console.log(data);
           if (data.passwd == passwd) {
@@ -201,30 +201,30 @@ app.controller('PutController', function($scope, $rootScope, $http, $location, $
   $scope.title = '';
   $scope.content = ''; // or undefined
 
-  // (function init() {
-  //   if ($routeParams.id){
-  //     $http.post(url + 'get', {
-  //       id: $routeParams.id
-  //     }).success(
-  //       function(data) {
-  //         if (data) {
-  //           $scope.title = data[0].title;
-  //           $scope.content = data[0].content;
-  //           $scope.id = data[0].id;
-  //         } else {
-  //           $location.path($rootScope.path).replace();
-  //         }
-  //       }
-  //     );
-  //   }
-  // })();
+  (function init() {
+    if ($routeParams.id) {
+      indexed.get($routeParams.id, 't')
+        .then(function(response) {
+          if (response) {
+            $scope.title = response.title;
+            $scope.content = response.content;
+            $scope.id = response.id;
+          } else {
+            $location.path($rootScope.path).replace();
+          }
+        }
+      );
+    }
+  })();
 
   $scope.save = function() {
     if ($scope.title !== '') {
       var title = crypto.encrypt($scope.title, publicKey);
       var content = crypto.encrypt($scope.content, publicKey);
+      var newID = false;
       if ($scope.id === '') {
         $scope.id = crypto.timeDiff();
+        newID = true;
       }
       var data = {
         title: title,
@@ -232,20 +232,34 @@ app.controller('PutController', function($scope, $rootScope, $http, $location, $
         id: $scope.id
       };
 
-      $http.post("http://dbmy.sinaapp.com/put.php", data).success(function(response) {
+      $http.post("https://dbmy.sinaapp.com/put.php", data).success(function(response) {
         if (response) {
-          indexed.put(data, 't');
+          var d = {
+            title: $scope.title,
+            content: $scope.content,
+            id: $scope.id
+          };
+          indexed.put(d, 't');
 
-          $http.get("http://dbmy.oss-cn-beijing.aliyuncs.com/etc/dbmy")
+          $http.get("https://dbmy.oss-cn-beijing.aliyuncs.com/etc/dbmy")
             .success(function(res) {
               res.version += 1;
-              var add = {
-                title: title,
-                id: $scope.id
-              };
-              res.with.push(add);
+              if (newID) {
+                var add = {
+                  title: title,
+                  id: $scope.id
+                };
+                res.with.push(add);
+              } else {
+                // res.with.forEach(function(x){
+                for (var i in res.with) {
+                  if (res.with[i].id == $scope.id) {
+                    res.with[i].title = title;
+                  }
+                }
+              }
 
-              $http.post("http://dbmy.sinaapp.com/put.php", res).success(function(resp) {
+              $http.post("https://dbmy.sinaapp.com/put.php", res).success(function(resp) {
                 if (resp) {
                   indexed.put(res, 'etc');
                   $location.path('/t/' + $scope.id).replace();
