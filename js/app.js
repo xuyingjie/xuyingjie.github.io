@@ -92,34 +92,30 @@ app.controller('NavController', function($scope, $rootScope, $http, $window, $lo
 });
 
 app.controller('HomeController', function($scope, $rootScope, $http, crypto, indexed) {
-  $scope.title = [];
-  $rootScope.all = [];
+  $rootScope.title = [];
+  $rootScope.version = 0;
+  $rootScope.set = [];
+  $rootScope.setEnc = [];
 
-  (function init() {
-    $http.get("https://dbmy.oss-cn-beijing.aliyuncs.com/etc/dbmy", {
-      cache: false
-    })
-      .success(function(data) {
-        $scope.title = data.with;
-        indexed.put(data, 'etc');
-
-        //
-        //
-        data.with.forEach(function(x){
-          $http.get("https://dbmy.oss-cn-beijing.aliyuncs.com/t/" + x.id)
-            .success(function(res) {
-              // console.log("a");
-              var d = {
-                title: crypto.decrypt(res.title, publicKey),
-                content: crypto.decrypt(res.content, publicKey),
-                id: res.id
-              };
-              indexed.put(d, 't');
-              $rootScope.all.push(d);
-            });
+  $http.get(url + "version").success(function(res){
+    // if($rootScope.version !== res.version) {
+      $http.get(url + "set/" + res.version).success(function(response){
+        $rootScope.version = res.version;
+        $rootScope.setEnc = response.set;
+        response.set.forEach(function(x){
+          var d = {
+            title: crypto.decrypt(x.title, publicKey),
+            id: x.id
+          };
+          $rootScope.title.push(d);
+          d.content = crypto.decrypt(x.content, publicKey);
+          // indexed.put(d, 't');
+          $rootScope.set.push(d);
         });
       });
-  })();
+    // }
+
+  });
 });
 
 app.controller('SectionController', function($scope, $rootScope, $http, $window, $location, $routeParams, crypto, indexed) {
@@ -127,23 +123,11 @@ app.controller('SectionController', function($scope, $rootScope, $http, $window,
   $scope.query = '';
 
   $scope.init = function(id) {
-    indexed.get(id, 't')
-      .then(function(response) {
-        if (response) {
-          $scope.fragment = [response];
-        } else {
-          $http.get("https://dbmy.oss-cn-beijing.aliyuncs.com/t/" + id)
-            .success(function(res) {
-              var d = {
-                title: crypto.decrypt(res.title, publicKey),
-                content: crypto.decrypt(res.content, publicKey),
-                id: res.id
-              };
-              indexed.put(d, 't');
-              $scope.fragment = [d];
-            });
-        }
-      });
+    for (var i in $rootScope.title) {
+      if (id == $rootScope.title[i].id) {
+        $scope.fragment = [$rootScope.set[i]];
+      }
+    }
   };
 
   $scope.e = function(id) {
@@ -155,7 +139,7 @@ app.controller('SectionController', function($scope, $rootScope, $http, $window,
     $scope.init($routeParams.id);
   } else if ($routeParams.keyword) {
     $scope.query = $routeParams.keyword;
-    $scope.fragment = $rootScope.all;
+    $scope.fragment = $rootScope.set;
   }
 
 });
@@ -201,39 +185,74 @@ app.controller('PutController', function($scope, $rootScope, $http, $location, $
   $scope.title = '';
   $scope.content = ''; // or undefined
 
-  (function init() {
-    if ($routeParams.id) {
-      indexed.get($routeParams.id, 't')
-        .then(function(response) {
-          if (response) {
-            $scope.title = response.title;
-            $scope.content = response.content;
-            $scope.id = response.id;
-          } else {
-            $location.path($rootScope.path).replace();
-          }
-        }
-      );
+  // $http.get(url + "version").success(function(res){
+  //   console.log(res);
+  //   if($rootScope.version !== res.version) {
+  //     $http.get(url + "set/" + res.version).success(function(response){
+  //       $rootScope.version = res.version;
+  //       $rootScope.set = response.set;
+  //     });
+  //   }
+  //
+  // });
+
+  if ($routeParams.id) {
+    var index;
+    $rootScope.set.forEach(function(x){
+      if($routeParams.id == x.id) {
+        $scope.title = x.title;
+        $scope.content = x.content;
+        $scope.id = x.id;
+        index = true;
+      }
+    });
+    if (!index){
+      $location.path($rootScope.path).replace();
     }
-  })();
+
+    // indexed.get($routeParams.id, 't')
+    //   .then(function(response) {
+    //     if (response) {
+    //       $scope.title = response.title;
+    //       $scope.content = response.content;
+    //       $scope.id = response.id;
+    //     } else {
+    //       $location.path($rootScope.path).replace();
+    //     }
+    //   }
+    // );
+  }
 
   $scope.save = function() {
     if ($scope.title !== '') {
-      var title = crypto.encrypt($scope.title, publicKey);
-      var content = crypto.encrypt($scope.content, publicKey);
-      var newID = false;
-      if ($scope.id === '') {
-        $scope.id = crypto.timeDiff();
-        newID = true;
-      }
+
+      $rootScope.version++;
+      var version = {
+        "version": $rootScope.version
+      };
+      var set = {
+        "set": $rootScope.setEnc
+      };
+
       var data = {
-        title: title,
-        content: content,
+        title: crypto.encrypt($scope.title, publicKey),
+        content: crypto.encrypt($scope.content, publicKey),
         id: $scope.id
       };
 
-      var file = new Blob([JSON.stringify(data)], {"type": "text\/json"});
-      var key = "t/" + $scope.id;
+      if (data.id === '') {
+        data.id = crypto.timeDiff();
+        set.set.push(data);
+      } else {
+        for (var i in set.set) {
+          if (data.id == set.set[i].id) {
+            set.set[i] = data;
+          }
+        }
+      }
+
+      var file = new Blob([JSON.stringify(set)], {"type": "text\/json"});
+      var key = "set/" + version.version;
       var progress = document.getElementById('save-progress');  // 页面顶部的进度线
 
       var xhr = oss.upload(file, key, progress);
@@ -241,39 +260,21 @@ app.controller('PutController', function($scope, $rootScope, $http, $location, $
       xhr.onload = function() {
         if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
 
-          $http.get("https://dbmy.oss-cn-beijing.aliyuncs.com/etc/dbmy").success(function(res) {
-            res.version += 1;
-            if (newID) {
-              var add = {
-                title: title,
-                id: $scope.id
-              };
-              res.with.push(add);
-            } else {
-              // res.with.forEach(function(x){
-              for (var i in res.with) {
-                if (res.with[i].id == $scope.id) {
-                  res.with[i].title = title;
-                }
-              }
+          var file = new Blob([JSON.stringify(version)], {"type": "text\/json"});
+          var key = "version";
+
+          var xhr0 = oss.upload(file, key, progress);
+          xhr0.onload = function() {
+            if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
+              console.log("hello");
+              $location.path('/t/' + $scope.id).replace();
+              // indexed.put(res, 'etc');
+
+              $scope.id = '';
+              $scope.title = '';
+              $scope.content = '';
             }
-
-            var file = new Blob([JSON.stringify(res)], {"type": "text\/json"});
-            var key = "etc/dbmy";
-
-            var xhr = oss.upload(file, key, progress);
-            xhr.onload = function() {
-              if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
-                console.log("hello");
-                $location.path('/t/' + $scope.id).replace();
-                indexed.put(res, 'etc');
-
-                $scope.id = '';
-                $scope.title = '';
-                $scope.content = '';
-              }
-            };
-          });
+          };
         }
       };
 
@@ -282,7 +283,7 @@ app.controller('PutController', function($scope, $rootScope, $http, $location, $
 
   $scope.uploadFile = function() {
     var file = document.getElementById('file').files[0];
-    var key = "p/" + crypto.timeDiff() + "_" + file.name;
+    var key = "u/" + crypto.timeDiff() + "_" + file.name;
     var progress = document.getElementById('upload-progress');
 
     var xhr = oss.upload(file, key, progress);
