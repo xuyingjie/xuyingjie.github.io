@@ -20,8 +20,8 @@
 //   document.body.appendChild(script);
 // };
 
-var app = angular.module('app', ['ngRoute', 'crypto', 'indexed']);
-var url = '/';
+var app = angular.module('app', ['ngRoute', 'crypto', 'indexed', 'oss']);
+var url = 'http://dbmy.oss-cn-beijing.aliyuncs.com/';
 var publicKey = 'FrtVDIUvAik';
 
 app.config(function($httpProvider) {
@@ -195,7 +195,7 @@ app.controller('LoginController', function($scope, $rootScope, $http, $window, $
   };
 });
 
-app.controller('PutController', function($scope, $rootScope, $http, $location, $routeParams, crypto, indexed) {
+app.controller('PutController', function($scope, $rootScope, $http, $location, $routeParams, crypto, indexed, oss) {
 
   $scope.id = '';
   $scope.title = '';
@@ -232,65 +232,64 @@ app.controller('PutController', function($scope, $rootScope, $http, $location, $
         id: $scope.id
       };
 
-      $http.post("https://dbmy.sinaapp.com/put.php", data).success(function(response) {
-        if (response) {
-          var d = {
-            title: $scope.title,
-            content: $scope.content,
-            id: $scope.id
-          };
-          indexed.put(d, 't');
+      var file = new Blob([JSON.stringify(data)], {"type": "text\/json"});
+      var key = "t/" + $scope.id;
+      var progress = document.getElementById('save-progress');  // 页面顶部的进度线
 
-          $http.get("https://dbmy.oss-cn-beijing.aliyuncs.com/etc/dbmy")
-            .success(function(res) {
-              res.version += 1;
-              if (newID) {
-                var add = {
-                  title: title,
-                  id: $scope.id
-                };
-                res.with.push(add);
-              } else {
-                // res.with.forEach(function(x){
-                for (var i in res.with) {
-                  if (res.with[i].id == $scope.id) {
-                    res.with[i].title = title;
-                  }
+      var xhr = oss.upload(file, key, progress);
+
+      xhr.onload = function() {
+        if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
+
+          $http.get("https://dbmy.oss-cn-beijing.aliyuncs.com/etc/dbmy").success(function(res) {
+            res.version += 1;
+            if (newID) {
+              var add = {
+                title: title,
+                id: $scope.id
+              };
+              res.with.push(add);
+            } else {
+              // res.with.forEach(function(x){
+              for (var i in res.with) {
+                if (res.with[i].id == $scope.id) {
+                  res.with[i].title = title;
                 }
               }
+            }
 
-              $http.post("https://dbmy.sinaapp.com/put.php", res).success(function(resp) {
-                if (resp) {
-                  indexed.put(res, 'etc');
-                  $location.path('/t/' + $scope.id).replace();
-                  $scope.id = '';
-                  $scope.title = '';
-                  $scope.content = '';
-                }
-              });
-            });
+            var file = new Blob([JSON.stringify(res)], {"type": "text\/json"});
+            var key = "etc/dbmy";
+
+            var xhr = oss.upload(file, key, progress);
+            xhr.onload = function() {
+              if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
+                console.log("hello");
+                $location.path('/t/' + $scope.id).replace();
+                indexed.put(res, 'etc');
+
+                $scope.id = '';
+                $scope.title = '';
+                $scope.content = '';
+              }
+            };
+          });
         }
-      }
-      );
+      };
+
     }
   };
 
-  var form = document.forms.namedItem("fileinfo");
+  $scope.uploadFile = function() {
+    var file = document.getElementById('file').files[0];
+    var key = "p/" + crypto.timeDiff() + "_" + file.name;
+    var progress = document.getElementById('upload-progress');
 
-  form.addEventListener('submit', function(ev) {
-    var oData = new FormData(document.forms.namedItem("fileinfo"));
-    var progress = document.getElementById('uploadprogress');
-    var xhr = new XMLHttpRequest();
-    xhr.open("POST", "upload", true);
-    xhr.upload.onprogress = function(event) {
-      if (event.lengthComputable) {
-        var complete = (event.loaded / event.total * 100 | 0);
-        progress.value = progress.innerHTML = complete;
-      }
-    };
-    xhr.onload = function(oEvent) {
-      if (xhr.status == 200) {
-        var c = xhr.responseText;
+    var xhr = oss.upload(file, key, progress);
+
+    xhr.onload = function() {
+      if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
+        var c = "\n![](" + url + key + ")";
 
         $scope.content = $scope.content + c;
         var textarea = document.getElementById('content');
@@ -300,9 +299,7 @@ app.controller('PutController', function($scope, $rootScope, $http, $location, $
         progress.value = 0;
       }
     };
-    xhr.send(oData);
-    ev.preventDefault();
-  }, false);
+  };
 
   function insertText(obj, str) {
     if (document.selection) {
@@ -324,6 +321,9 @@ app.controller('PutController', function($scope, $rootScope, $http, $location, $
 });
 
 
+//
+//
+//
 app.filter('decrypt', function(crypto) {
   return function(input) {
     return crypto.decrypt(input, publicKey);

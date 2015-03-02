@@ -47,6 +47,10 @@ angular.module('crypto', [])
     timeDiff: function(){
       return Date.now() + '' + Math.floor(Math.random() * 9000 + 1000); // 或加入IP
     },
+    Base64: function(s){
+      var utf8 = CryptoJS.enc.Utf8.parse(s);
+      return CryptoJS.enc.Base64.stringify(utf8);
+    },
     SHA256: function(s){
       return String(CryptoJS.SHA256(s));
     },
