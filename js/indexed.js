@@ -7,8 +7,11 @@ angular.module('indexed', [])
 .factory('indexed', function($q){
 
   var db = new Dexie("Dbmy");
-  db.version(1).stores({etc: 'name, version, with'});
-  db.version(1).stores({t: 'id, title, content'});
+  db.version(1).stores({etc: 'id, version'});
+  db.version(1).stores({title: 'id, title'});
+  db.version(1).stores({section: 'id, section'});
+  db.version(1).stores({set: 'id, set'});
+  db.version(1).stores({setEnc: 'id, set'});
   db.open();
 
   // var request = indexedDB.open("Dbmy");

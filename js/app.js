@@ -59,10 +59,66 @@ app.config(['$routeProvider', function($routeProvider) {
 
 }]);
 
-app.controller('NavController', function($scope, $rootScope, $http, $window, $location, $routeParams, indexed) {
+app.controller('NavController', function($scope, $rootScope, $http, $window, $location, $routeParams, crypto, indexed) {
   $scope.mainput = '';
   $rootScope.auth = false;
   $rootScope.path = '/';
+
+  $rootScope.title = [];
+  $rootScope.version = 0;
+  $rootScope.set = [];
+  $rootScope.setEnc = [];
+
+  (function init() {
+    var cache = function(){
+      $http.get(url + "set/" + $rootScope.version).success(function(response){
+        $rootScope.setEnc = response.set;
+        response.set.forEach(function(x){
+          var d = {
+            title: crypto.decrypt(x.title, publicKey),
+            id: x.id
+          };
+          $rootScope.title.push(d);
+          d.content = crypto.decrypt(x.content, publicKey);
+          $rootScope.set.push(d);
+          indexed.put(d, 'section');
+        });
+
+        indexed.put({"id": "version", "version": $rootScope.version}, 'etc');
+        indexed.put({"id": $rootScope.version, "title": $rootScope.title}, 'title');
+        indexed.put({"id": $rootScope.version, "set": $rootScope.set}, 'set');
+        indexed.put({"id": $rootScope.version, "set": $rootScope.setEnc}, 'setEnc');
+      });
+    };
+
+    $http.get(url + "version", {cache: false}).success(function(res){
+      $rootScope.version = res.version;
+
+      indexed.get("version", 'etc')
+        .then(function(r) {
+          if (r) {
+            if (r.version === res.version){
+              console.log("EEE");
+              indexed.get(r.version, 'title').then(function(r){
+                $rootScope.title = r.title;   // if(r)
+              });
+              indexed.get(r.version, 'set').then(function(r){
+                $rootScope.set = r.set;
+              });
+              indexed.get(r.version, 'setEnc').then(function(r){
+                $rootScope.setEnc = r.set;
+              });
+            } else {
+              cache();
+            }
+          } else {
+            cache();
+          }
+        }
+      );
+    });
+  })();
+
 
   $scope.search = function() {
     var input = $scope.mainput;
@@ -92,30 +148,7 @@ app.controller('NavController', function($scope, $rootScope, $http, $window, $lo
 });
 
 app.controller('HomeController', function($scope, $rootScope, $http, crypto, indexed) {
-  $rootScope.title = [];
-  $rootScope.version = 0;
-  $rootScope.set = [];
-  $rootScope.setEnc = [];
 
-  $http.get(url + "version").success(function(res){
-    // if($rootScope.version !== res.version) {
-      $http.get(url + "set/" + res.version).success(function(response){
-        $rootScope.version = res.version;
-        $rootScope.setEnc = response.set;
-        response.set.forEach(function(x){
-          var d = {
-            title: crypto.decrypt(x.title, publicKey),
-            id: x.id
-          };
-          $rootScope.title.push(d);
-          d.content = crypto.decrypt(x.content, publicKey);
-          // indexed.put(d, 't');
-          $rootScope.set.push(d);
-        });
-      });
-    // }
-
-  });
 });
 
 app.controller('SectionController', function($scope, $rootScope, $http, $window, $location, $routeParams, crypto, indexed) {
@@ -123,11 +156,9 @@ app.controller('SectionController', function($scope, $rootScope, $http, $window,
   $scope.query = '';
 
   $scope.init = function(id) {
-    for (var i in $rootScope.title) {
-      if (id == $rootScope.title[i].id) {
-        $scope.fragment = [$rootScope.set[i]];
-      }
-    }
+    indexed.get($routeParams.id, 'section').then(function(x){
+      $scope.fragment = [x];
+    });
   };
 
   $scope.e = function(id) {
@@ -185,42 +216,12 @@ app.controller('PutController', function($scope, $rootScope, $http, $location, $
   $scope.title = '';
   $scope.content = ''; // or undefined
 
-  // $http.get(url + "version").success(function(res){
-  //   console.log(res);
-  //   if($rootScope.version !== res.version) {
-  //     $http.get(url + "set/" + res.version).success(function(response){
-  //       $rootScope.version = res.version;
-  //       $rootScope.set = response.set;
-  //     });
-  //   }
-  //
-  // });
-
   if ($routeParams.id) {
-    var index;
-    $rootScope.set.forEach(function(x){
-      if($routeParams.id == x.id) {
-        $scope.title = x.title;
-        $scope.content = x.content;
-        $scope.id = x.id;
-        index = true;
-      }
+    indexed.get($routeParams.id, 'section').then(function(x){
+      $scope.title = x.title;
+      $scope.content = x.content;
+      $scope.id = x.id;
     });
-    if (!index){
-      $location.path($rootScope.path).replace();
-    }
-
-    // indexed.get($routeParams.id, 't')
-    //   .then(function(response) {
-    //     if (response) {
-    //       $scope.title = response.title;
-    //       $scope.content = response.content;
-    //       $scope.id = response.id;
-    //     } else {
-    //       $location.path($rootScope.path).replace();
-    //     }
-    //   }
-    // );
   }
 
   $scope.save = function() {
@@ -234,6 +235,10 @@ app.controller('PutController', function($scope, $rootScope, $http, $location, $
         "set": $rootScope.setEnc
       };
 
+      var d = {
+        title: $scope.title,
+        id: $scope.id
+      };
       var data = {
         title: crypto.encrypt($scope.title, publicKey),
         content: crypto.encrypt($scope.content, publicKey),
@@ -243,13 +248,31 @@ app.controller('PutController', function($scope, $rootScope, $http, $location, $
       if (data.id === '') {
         data.id = crypto.timeDiff();
         set.set.push(data);
+
+        d.id = data.id;
+        $rootScope.title.push(d);
+        d.content = $scope.content;
+        $rootScope.set.push(d);
       } else {
         for (var i in set.set) {
           if (data.id == set.set[i].id) {
             set.set[i] = data;
+
+            $rootScope.title[i] = d;
+            d.content = $scope.content;
+            $rootScope.set[i] = d;
           }
         }
       }
+
+      $rootScope.setEnc = set.set;
+      indexed.put(d, 'section');
+      indexed.put({"id": "version", "version": $rootScope.version}, 'etc');
+
+      // Bug
+      // indexed.put({"id": $rootScope.version, "title": $rootScope.title}, 'title');
+      indexed.put({"id": $rootScope.version, "set": $rootScope.set}, 'set');
+      indexed.put({"id": $rootScope.version, "set": $rootScope.setEnc}, 'setEnc');
 
       var file = new Blob([JSON.stringify(set)], {"type": "text\/json"});
       var key = "set/" + version.version;
@@ -268,7 +291,7 @@ app.controller('PutController', function($scope, $rootScope, $http, $location, $
             if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
               console.log("hello");
               $location.path('/t/' + $scope.id).replace();
-              // indexed.put(res, 'etc');
+              // $location.path('/');
 
               $scope.id = '';
               $scope.title = '';
