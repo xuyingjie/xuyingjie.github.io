@@ -16,7 +16,6 @@ var Editor = React.createClass({displayName: "Editor",
     }
   },
   componentDidMount: function() {
-    this.tick();
     this.interval = setInterval(this.tick, 5);  // 等待cache完成
   },
   componentWillUnmount: function() {

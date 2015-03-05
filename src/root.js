@@ -24,9 +24,6 @@ var Root = React.createClass({
           d.content = decrypt(x.content, publicKey);
           set.push(d);
         });
-        // contents.sort(function(a, b){
-        //   return b.title.localeCompare(a.title);
-        // });
         this.setState({contents: contents});
         this.setState({set: set});
 
