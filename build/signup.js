@@ -3,7 +3,7 @@ var SignUp = React.createClass({displayName: "SignUp",
   handleSubmit: function(e) {
     e.preventDefault();
 
-    var name = SHA256(this.refs.name.getDOMNode().value);
+    var name = this.refs.name.getDOMNode().value;
     var passwd = this.refs.passwd.getDOMNode().value;
     var token = this.refs.token.getDOMNode().value;
     var OSSAccessKeyId = this.refs.OSSAccessKeyId.getDOMNode().value;
@@ -17,26 +17,26 @@ var SignUp = React.createClass({displayName: "SignUp",
         }
       ]
     };
-    var policy = Base64(JSON.stringify(policyJson));
-    var signature = CryptoJS.HmacSHA1(policy, OSSAccessKeySecret).toString(CryptoJS.enc.Base64);
+    var policy = btoa(JSON.stringify(policyJson));
+    var signature = asmCrypto.HMAC_SHA1.base64(policy, OSSAccessKeySecret);
 
     var user = {
-      "passwd": SHA256(passwd),
-      "token": encrypt(token, passwd),
-      "OSSAccessKeyId": encrypt(OSSAccessKeyId, passwd),
-      "policy": encrypt(policy, passwd),
-      "signature": encrypt(signature, passwd)
+      "token": token,
+      "OSSAccessKeyId": OSSAccessKeyId,
+      "policy": policy,
+      "signature": signature
     };
-    var file = new Blob([JSON.stringify(user)], {"type": "text\/json"});
+    var uint8Arr = asmCrypto.AES_CBC.encrypt(JSON.stringify({user: user}), passwd);
+    blob = new Blob([uint8Arr.buffer], {type: 'application/octet-stream'});
 
     var formData = new FormData();
     formData.append('OSSAccessKeyId', OSSAccessKeyId);
     formData.append('policy', policy);
     formData.append('signature', signature);
 
-    formData.append('Content-Type', file.type);
+    formData.append('Content-Type', blob.type);
     formData.append('key', name);
-    formData.append("file", file); // 文件或文本内容，必须是表单中的最后一个域。
+    formData.append("file", blob);
 
     var xhr = new XMLHttpRequest();
 
@@ -59,23 +59,23 @@ var SignUp = React.createClass({displayName: "SignUp",
 
             React.createElement("form", {onSubmit: this.handleSubmit}, 
               React.createElement("div", {className: "form-group"}, 
-                React.createElement("label", {for: "inputName3"}, "Name"), 
+                React.createElement("label", {htmlFor: "inputName3"}, "Name"), 
                 React.createElement("input", {type: "text", className: "form-control", id: "inputName3", ref: "name"})
               ), 
               React.createElement("div", {className: "form-group"}, 
-                React.createElement("label", {for: "inputPassword3"}, "Password"), 
+                React.createElement("label", {htmlFor: "inputPassword3"}, "Password"), 
                 React.createElement("input", {type: "text", className: "form-control", id: "inputPassword3", ref: "passwd"})
               ), 
               React.createElement("div", {className: "form-group"}, 
-                React.createElement("label", {for: "token"}, "Token"), 
+                React.createElement("label", {htmlFor: "token"}, "Token"), 
                 React.createElement("input", {type: "text", className: "form-control", id: "token", ref: "token"})
               ), 
               React.createElement("div", {className: "form-group"}, 
-                React.createElement("label", {for: "OSSAccessKeyId"}, "OSSAccessKeyId"), 
+                React.createElement("label", {htmlFor: "OSSAccessKeyId"}, "OSSAccessKeyId"), 
                 React.createElement("input", {type: "text", className: "form-control", id: "OSSAccessKeyId", ref: "OSSAccessKeyId"})
               ), 
               React.createElement("div", {className: "form-group"}, 
-                React.createElement("label", {for: "OSSAccessKeySecret"}, "OSSAccessKeySecret"), 
+                React.createElement("label", {htmlFor: "OSSAccessKeySecret"}, "OSSAccessKeySecret"), 
                 React.createElement("input", {type: "text", className: "form-control", id: "OSSAccessKeySecret", ref: "OSSAccessKeySecret"})
               ), 
               React.createElement("button", {type: "submit", className: "btn btn-default"}, "Sign up")

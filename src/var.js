@@ -2,19 +2,25 @@
 // - 存储为单文件（方便缓存、搜索）
 // - 存储文章和上传文件一样post
 // - 标题排序（字母排序，修改时间排序）
+// - 文件整体加密，云端存储格式(new Blob([ArrayBuffer]))
 // ? 多种文件格式的显示
 // ? 版本回溯
 // ? js文件合并压缩
 // ? "#/scratch": [ckeditor] 加密，没有标题，tag,修改时间排序
 // ? "#/folder": asmcrypto.js 加密 {name:, path:}
+// - indexedDB不需要清理(folder不需要cache)
+//
 // ? es6
+// ! 用 for(var i = 0; i < a.length; i++) 取代 for(var i in a)
 //
 
 //
 // Docouments
 // JavaScript: http://javascript.ruanyifeng.com/
 // ReactRouter overview: https://github.com/rackt/react-router/blob/master/docs/guides/overview.md
+// asmCrypto: https://github.com/vibornoff/asmcrypto.js#aes_cbc
 //
+
 
 //
 // Global Variable
@@ -27,7 +33,7 @@ var RouteHandler = Router.RouteHandler;
 
 var bucket = 'kxmd';
 var url = 'http://' + bucket + '.oss-cn-beijing.aliyuncs.com/';
-var publicKey = 'FrtVDIUvAik';  // 存储前加密密钥
+var publicKey = 'GmPw2qjmTsAAUsqa';  // 存储前加密密钥
 
 // or define in this.state
 var local = "#/";       // 返回登录前页面
@@ -44,7 +50,6 @@ var db = new Dexie(bucket);
 db.version(1).stores({etc: 'id, version'});
 db.version(1).stores({contents: 'id, arr'});
 db.version(1).stores({set: 'id, arr'});
-db.version(1).stores({encSet: 'id, arr'});
 db.version(1).stores({section: 'id, title, content, timestamp'});
 db.open();
 
@@ -63,7 +68,26 @@ db.open();
 // ajax
 // or use Promise
 //
-var ajax = function(opts){
+var ajaxArrayBuffer = function(opts){
+  var xhr = new XMLHttpRequest();
+  xhr.responseType = 'arraybuffer';
+  xhr.onreadystatechange = function(){
+    if(xhr.readyState === 4){
+      uint8Arr = asmCrypto.AES_CBC.decrypt(xhr.response, opts.token);
+      console.log("AES.decrypt");
+      if (opts.json) {
+        var str = Uint8ArrayToString(uint8Arr);
+        opts.success(JSON.parse(str));
+      } else {
+        opts.success(uint8Arr);
+      }
+    }
+  };
+  xhr.open("GET", opts.url, true);
+  xhr.send(null);
+};
+
+var ajaxJson = function(opts){
   var xhr = new XMLHttpRequest();
   xhr.onreadystatechange = function(){
     if(xhr.readyState === 4){
@@ -72,90 +96,28 @@ var ajax = function(opts){
         if (xhr.responseText !== ''){
           opts.success(JSON.parse(xhr.responseText));
         }
-      }else{
-        opts.error(xhr.statusText);
       }
     }
   };
-  xhr.open(opts.method, opts.url, true);
-
-  // 模拟POST提交FormData。服务端$POST接收的是FormData。
-  // 或者修改服务器端，接收JSON.stringify(opts.data)。
-  // var formData = new FormData();
-  // for (i in opts.data){
-  //   formData.append(i, opts.data[i]);
-  // }
-  xhr.send(JSON.stringify(opts.data));
-};
-
-
-//
-// crypto
-//
-var JsonFormatter = {
-  stringify: function (cipherParams) {
-    // create json object with ciphertext
-    var jsonObj = {
-      ct: cipherParams.ciphertext.toString(CryptoJS.enc.Base64)
-    };
-
-    // optionally add iv and salt
-    if (cipherParams.iv) {
-      jsonObj.iv = cipherParams.iv.toString();
-    }
-    if (cipherParams.salt) {
-      jsonObj.s = cipherParams.salt.toString();
-    }
-
-    // stringify json object
-    return JSON.stringify(jsonObj);
-  },
-
-  parse: function (jsonStr) {
-    // parse json string
-    var jsonObj = JSON.parse(jsonStr);
-
-    // extract ciphertext from json object, and create cipher params object
-    var cipherParams = CryptoJS.lib.CipherParams.create({
-      ciphertext: CryptoJS.enc.Base64.parse(jsonObj.ct)
-    });
-
-    // optionally extract iv and salt
-    if (jsonObj.iv) {
-      cipherParams.iv = CryptoJS.enc.Hex.parse(jsonObj.iv);
-    }
-    if (jsonObj.s) {
-      cipherParams.salt = CryptoJS.enc.Hex.parse(jsonObj.s);
-    }
-
-    return cipherParams;
-  }
-};
-
-var timeDiff = function(){
-  return Date.now() + '' + Math.floor(Math.random() * 9000 + 1000); // 或加入IP
-};
-var Base64 = function(s){
-  var utf8 = CryptoJS.enc.Utf8.parse(s);
-  return CryptoJS.enc.Base64.stringify(utf8);
-};
-var SHA256 = function(s){
-  return String(CryptoJS.SHA256(s));
-};
-var encrypt = function(s, passwd){
-  var encrypted = CryptoJS.AES.encrypt(s, passwd, { format: JsonFormatter });
-  return String(encrypted);
-};
-var decrypt = function(s, passwd){
-  var decrypted = CryptoJS.AES.decrypt(s, passwd, { format: JsonFormatter });
-  return decrypted.toString(CryptoJS.enc.Utf8);
+  xhr.open("GET", opts.url, true);
+  xhr.send(null);
 };
 
 
 //
 // oss post
 //
-var upload = function(file, key, progress) {
+var upload = function(opts) {
+
+  var blob;
+  if (opts.token) {
+    var uint8Arr = asmCrypto.AES_CBC.encrypt(opts.data, opts.token);
+    console.log("AES.encrypt");
+    // new Blob([encList.buffer]) fast than new Blob([encList]) type不是必需的
+    blob = new Blob([uint8Arr.buffer], {type: 'application/octet-stream'});
+  } else {
+    blob = opts.data;
+  }
 
   var OSSAccessKeyId = window.localStorage.OSSAccessKeyId;
   // var OSSAccessKeySecret = window.localStorage.OSSAccessKeySecret;
@@ -168,8 +130,8 @@ var upload = function(file, key, progress) {
   //     }
   //   ]
   // };
-  // var policy = Base64(JSON.stringify(policyJson));
-  // var signature = CryptoJS.HmacSHA1(policy, OSSAccessKeySecret).toString(CryptoJS.enc.Base64);
+  // var policy = btoa(JSON.stringify(policyJson));
+  // var signature = asmCrypto.HMAC_SHA1.base64(policy, OSSAccessKeySecret);
 
   var policy = window.localStorage.policy;
   var signature = window.localStorage.signature;
@@ -179,20 +141,22 @@ var upload = function(file, key, progress) {
   formData.append('policy', policy);
   formData.append('signature', signature);
 
-  formData.append('Content-Type', file.type);
-  formData.append('key', key);
-  formData.append("file", file); // 文件或文本内容，必须是表单中的最后一个域。
+  formData.append('Content-Type', blob.type);
+  formData.append('key', opts.key);
+  formData.append("file", blob); // 文件或文本内容，必须是表单中的最后一个域。
 
   var xhr = new XMLHttpRequest();
 
-  var updateProgress = function(event) {
-    if (event.lengthComputable) {
-      var complete = (event.loaded / event.total * 100 | 0);
-      progress.value = progress.innerHTML = complete;
-    }
-  };
-  // xhr.upload.onprogress = function(event)...
-  xhr.upload.addEventListener("progress", updateProgress, false);
+  if (opts.progress) {
+    var updateProgress = function(event) {
+      if (event.lengthComputable) {
+        var complete = (event.loaded / event.total * 100 | 0);
+        opts.progress.value = opts.progress.innerHTML = complete;
+      }
+    };
+    // xhr.upload.onprogress = function(event)...
+    xhr.upload.addEventListener("progress", updateProgress, false);
+  }
 
   xhr.open("POST", url, true);
   xhr.send(formData);
@@ -216,3 +180,34 @@ var insertText = function(obj, str) {
     obj.value += str;
   }
 };
+
+
+
+
+//
+// crypto
+//
+var timeDiff = function(){
+  return Date.now() + '' + Math.floor(Math.random() * 9000 + 1000); // 或加入IP
+};
+
+// little fast than UTF8ArrToStr()
+var Uint8ArrayToString = function(v){
+  var str = "";
+  for (var i = 0; i < v.length; i++) {
+    str = str + String.fromCharCode(v[i]);
+  }
+  return str;
+};
+
+/*\
+|*|
+|*|  Base64 / binary data / UTF-8 strings utilities
+|*|
+|*|  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Base64_encoding_and_decoding
+|*|
+\*/
+// var Base64 = function(s){
+//   var utf8 = strToUTF8Arr(s);
+//   return base64EncArr(utf8);
+// };

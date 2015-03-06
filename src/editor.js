@@ -40,16 +40,23 @@ var Editor = React.createClass({
     var key = "u/" + timeDiff() + "_" + file.name;
     var progress = document.getElementById('upload-progress');
 
-    var xhr = upload(file, key, progress);
+    var opts = {
+      key: key,
+      data: file,
+      progress: progress
+    };
+
+    var xhr = upload(opts);
     xhr.onload = function() {
       if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
-        var c = "\n![](" + url + key + ")";
 
+        var c = "\n![](" + url + key + ")";
         var textarea = document.getElementById('content');
         insertText(textarea, c);
-        var x = this.state.section;
-        x.content = textarea.value;
-        this.setState({section: x});
+
+        var section = this.state.section;
+        section.content = textarea.value;
+        this.setState({section: section});
 
         document.getElementById("file").value = "";
         progress.value = 0;
@@ -81,9 +88,7 @@ var Editor = React.createClass({
           <input id="file" type="file" required multiple accept/>
           <button type="submit" className="btn btn-default">Insert</button>
         </form>
-
         <progress id="upload-progress" min="0" max="100" value="0">0</progress>
-        <progress id="save-progress" min="0" max="100" value="0">0</progress>
 
       </div>
     );

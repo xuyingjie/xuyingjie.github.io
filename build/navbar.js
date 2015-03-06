@@ -38,6 +38,7 @@ var Navbar = React.createClass({displayName: "Navbar",
           React.createElement("a", {className: "navbar-brand", href: "#/folder"}, 
             React.createElement("span", {className: "fa fa-folder", "aria-hidden": "true"})
           ), 
+          React.createElement("span", {className: "navbar-brand"}), 
           React.createElement("a", {className: "navbar-brand", href: true, onClick: this.handleLogoutClick}, 
             React.createElement("span", {className: "fa fa-sign-out", "aria-hidden": "true"})
           )

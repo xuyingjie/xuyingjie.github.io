@@ -1,31 +1,28 @@
 var Root = React.createClass({
 
   getInitialState: function() {
-    return {version: 0, contents: [], set: [], encSet: [], auth: false};
+    return {version: 0, contents: [], set: [], auth: false};
   },
 
   // load and cache
   loadSetFromServer: function(){
-    ajax({
+    ajaxArrayBuffer({
       url: url + "set/" + this.state.version,
-      method: "GET",
+      json: true,
+      token: publicKey,
       success: function(data){
-        this.setState({encSet: data.set});
 
         var contents = [];
-        var set = [];
-        this.state.encSet.forEach(function(x){
-          var d = {
+        data.set.forEach(function(x){
+          var t = {
             id: x.id,
-            title: decrypt(x.title, publicKey),
+            title: x.title,
             timestamp: x.timestamp
           };
-          contents.push(d);
-          d.content = decrypt(x.content, publicKey);
-          set.push(d);
+          contents.push(t);
         });
         this.setState({contents: contents});
-        this.setState({set: set});
+        this.setState({set: data.set});
 
         this.cacheToIndexedDB();
         refresh = true;
@@ -38,7 +35,6 @@ var Root = React.createClass({
     db.etc.put({"id": "version", "version": v});
     db.contents.put({"id": v, "arr": this.state.contents});
     db.set.put({"id": v, "arr": this.state.set});
-    db.encSet.put({"id": v, "arr": this.state.encSet});
     this.state.set.forEach(function(x){
       db.section.put(x).then(function(){
         refresh = true;
@@ -53,28 +49,24 @@ var Root = React.createClass({
     db.set.get(v, function(data){
       this.setState({set: data.arr});
     }.bind(this));
-    db.encSet.get(v, function(data){
-      this.setState({encSet: data.arr});
-    }.bind(this));
   },
   cache: function(){
-    ajax({
+    ajaxJson({
       url: url + "version",
-      method: "GET",
       success: function(data){
         this.setState({version: data.version});
 
         db.etc.get("version", function(data){
           if (data) {
             if (data.version === this.state.version){
-              // console.log("AAA");
+              console.log("LoadSetFromIndexedDB");
               this.loadSetFromIndexedDB();
             } else {
-              // console.log("BBB");
+              console.log("LoadSetFromServer");
               this.loadSetFromServer();
             }
           } else {
-            // console.log("CCC");
+            console.log("LoadSetFromServer");
             this.loadSetFromServer();
           }
         }.bind(this));
@@ -90,36 +82,24 @@ var Root = React.createClass({
       var version = this.state.version + 1;
       var contents = this.state.contents;
       var set = this.state.set;
-      var encSet = this.state.encSet;
 
-      var timestamp = Date.now();
       var t = {
         id: data.id,
         title: data.title,
-        timestamp: timestamp
-      };
-      var encT = {
-        id: data.id,
-        title: encrypt(data.title, publicKey),
-        content: encrypt(data.content, publicKey),
-        timestamp: timestamp
+        timestamp: Date.now()
       };
 
       if (t.id === '') {
         t.id = timeDiff();
-        encT.id = t.id;
-
         contents.push(t);
         t.content = data.content;
         set.push(t);
-        encSet.push(encT);
       } else {
         for (var i in contents) {
           if (t.id === contents[i].id) {
             contents[i] = t;
             t.content = data.content;
             set[i] = t;
-            encSet[i] = encT;
           }
         }
       }
@@ -127,28 +107,32 @@ var Root = React.createClass({
       this.setState({version: version});
       this.setState({contents: contents});
       this.setState({set: set});
-      this.setState({encSet: encSet});
 
       db.section.put(t);
       db.etc.put({"id": "version", "version": version});
       db.contents.put({"id": version, "arr": contents});
       db.set.put({"id": version, "arr": set});
-      db.encSet.put({"id": version, "arr": encSet});
 
+      var opts = {
+        key: "set/" + version,
+        data: JSON.stringify({set: set}),
+        token: publicKey
+      };
 
-      var file = new Blob([JSON.stringify({"set": encSet})], {"type": "text\/json"});
-      var key = "set/" + version;
-      var progress = document.getElementById('save-progress');  // 页面顶部的进度线
+      var xhr = upload(opts);
 
-      var xhr = upload(file, key, progress);
       xhr.onload = function() {
         if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
 
-          var file = new Blob([JSON.stringify({"version": version})], {"type": "text\/json"});
-          var key = "version";
-          var xhr0 = upload(file, key, progress);
-          xhr0.onload = function() {
-            if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
+          var opts = {
+            key: "version",
+            data: new Blob([JSON.stringify({version: version})], {type: 'text/json'})
+          };
+
+          var req = upload(opts);
+
+          req.onload = function() {
+            if ((req.status >= 200 && req.status < 300) || req.status == 304) {
               console.log("Save!!!");
               location.href="#/t/"+ t.id;
             }
@@ -200,6 +184,7 @@ var routes = (
     <Route name="e" path="/e/:id" handler={Editor}/>
     <Route name="login" handler={SignIn}/>
     <Route name="join" handler={SignUp}/>
+    <Route name="folder" handler={Folder}/>
     <DefaultRoute handler={Contents}/>
   </Route>
 );
