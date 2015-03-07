@@ -1,25 +1,3 @@
-
-// indexedDB缓存。搜索功能
-//
-// 多人实时操作冲突
-// ???React.js
-
-
-// var Dbmy;
-// var JSONP = function(url, callback) {
-//   var script = document.createElement("script");
-//   Dbmy = function(response){
-//     try {
-//       callback(response);
-//     }
-//     finally {
-//       script.parentNode.removeChild(script);
-//     }
-//   };
-//   script.src = url;
-//   document.body.appendChild(script);
-// };
-
 var app = angular.module('app', ['ngRoute', 'crypto', 'indexed', 'oss']);
 var url = 'http://dbmy.oss-cn-beijing.aliyuncs.com/';
 var publicKey = 'FrtVDIUvAik';
