@@ -99,10 +99,3 @@ input[type="file"] {
 /*   color: #333 !important; */
   font-weight: bold;
 }
-
-#save-progress {
-  width: 100%;
-  height: 1px;
-  border: 0;
-  display: none;
-}

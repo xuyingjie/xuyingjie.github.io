@@ -10,22 +10,21 @@ var Folder = React.createClass({displayName: "Folder",
       json: true,
       token: window.localStorage.token,
       success: function(data){
-        console.log(data);
-
         this.setState({list: data.list});
-
       }.bind(this)
     });
   },
 
   download: function(file){
+    var progress = document.getElementById(file.id);
+
     ajaxArrayBuffer({
       url: file.url,
       token: window.localStorage.token,
+      progress: progress,
       success: function(data){
         var blob = new Blob([data.buffer], {"type": file.type});
         var objecturl =  URL.createObjectURL(blob);
-        console.log(objecturl);
 
         // 生成下载
         var anchor = document.createElement("a");
@@ -37,6 +36,7 @@ var Folder = React.createClass({displayName: "Folder",
         anchor.dispatchEvent(evt);
         document.body.removeChild(anchor);
 
+        progress.value = 0;
       }
     });
   },
@@ -62,6 +62,7 @@ var Folder = React.createClass({displayName: "Folder",
         if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
 
           var d = {
+            id: key,
             name: file.name,
             type: file.type,
             size: file.size,
@@ -81,7 +82,7 @@ var Folder = React.createClass({displayName: "Folder",
             if ((req.status >= 200 && req.status < 300) || req.status == 304) {
               console.log("Upload!!!");
 
-              // this.setState({list: list});
+              this.setState({list: list});
               document.getElementById("file").value = "";
               document.getElementById('upload-progress').value = 0;
             }
@@ -96,6 +97,8 @@ var Folder = React.createClass({displayName: "Folder",
   },
 
   render: function() {
+    var list = this.state.list.slice(0).reverse();
+
     return (
       React.createElement("div", {className: "container-fluid"}, 
 
@@ -106,12 +109,11 @@ var Folder = React.createClass({displayName: "Folder",
         React.createElement("progress", {id: "upload-progress", min: "0", max: "100", value: "0"}, "0"), 
 
         React.createElement("ul", {className: "list-group"}, 
-          this.state.list.map(function(x){
+          list.map(function(x){
             return (
-              React.createElement("li", {className: "list-group-item", key: x.url, onClick: this.download.bind(this, x)}, 
+              React.createElement("a", {className: "list-group-item", key: x.id, href: "#/folder", onClick: this.download.bind(this, x)}, 
                 x.name, 
-                React.createElement("span", {className: "pull-right"}, (x.size/1024).toFixed(2) + "KB")
-
+                React.createElement("span", {id: x.id, className: "pull-right"}, (x.size/1024).toFixed(2) + "KB")
               )
             );
           }.bind(this))

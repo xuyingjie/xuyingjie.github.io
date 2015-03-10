@@ -54,7 +54,7 @@ var Editor = React.createClass({displayName: "Editor",
       xhr.onload = function() {
         if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
 
-          var c = `\n<div name="enc-img" data-name="${file.name}" data-type="${file.type}" data-src="${url+key}"><span class="fa fa-spinner fa-pulse"></span></div>`;
+          var c = '\n<div name="enc-img" data-name="'+file.name+'" data-type="'+file.type+'" data-src="'+url+key+'"><span class="fa fa-spinner fa-pulse"></span></div>';
           var textarea = document.getElementById('content');
           insertText(textarea, c);
 

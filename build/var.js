@@ -85,6 +85,17 @@ var ajaxArrayBuffer = function(opts){
       }
     }
   };
+  if (opts.progress) {
+    xhr.onprogress = function(e) {
+      if (e.lengthComputable) {
+        if (e.loaded === e.total) {
+          opts.progress.innerHTML = (e.total/1024).toFixed(2) + "KB";
+        } else {
+          opts.progress.innerHTML = ((e.loaded/e.total)*100).toFixed(2) + "%";
+        }
+      }
+    };
+  }
   xhr.open("GET", opts.url, true);
   xhr.send(null);
 };
@@ -150,14 +161,11 @@ var upload = function(opts) {
   var xhr = new XMLHttpRequest();
 
   if (opts.progress) {
-    var updateProgress = function(event) {
-      if (event.lengthComputable) {
-        var complete = (event.loaded / event.total * 100 | 0);
-        opts.progress.value = opts.progress.innerHTML = complete;
+    xhr.upload.onprogress = function(e) {
+      if (e.lengthComputable) {
+        opts.progress.value = (e.loaded / e.total) * 100;
       }
     };
-    // xhr.upload.onprogress = function(event)...
-    xhr.upload.addEventListener("progress", updateProgress, false);
   }
 
   xhr.open("POST", url, true);
