@@ -37,32 +37,40 @@ var Editor = React.createClass({displayName: "Editor",
     e.preventDefault();    // 阻止默认行为的发生。如跳转。
 
     var file = document.getElementById('file').files[0];
-    var key = "u/" + timeDiff() + "_" + file.name;
-    var progress = document.getElementById('upload-progress');
 
-    var opts = {
-      key: key,
-      data: file,
-      progress: progress
-    };
+    var reader = new FileReader();
+    reader.onload = function(e) {
 
-    var xhr = upload(opts);
-    xhr.onload = function() {
-      if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
+      var key = "u/" + timeDiff();
+      var progress = document.getElementById('upload-progress');
+      var opts = {
+        key: key,
+        data: reader.result,
+        token: publicKey,
+        progress: progress
+      };
 
-        var c = "\n![](" + url + key + ")";
-        var textarea = document.getElementById('content');
-        insertText(textarea, c);
+      var xhr = upload(opts);
+      xhr.onload = function() {
+        if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
 
-        var section = this.state.section;
-        section.content = textarea.value;
-        this.setState({section: section});
+          var c = `\n<div name="enc-img" data-name="${file.name}" data-type="${file.type}" data-src="${url+key}"><span class="fa fa-spinner fa-pulse"></span></div>`;
+          var textarea = document.getElementById('content');
+          insertText(textarea, c);
 
-        document.getElementById("file").value = "";
-        progress.value = 0;
-      }
+          var section = this.state.section;
+          section.content = textarea.value;
+          this.setState({section: section});
+
+          document.getElementById("file").value = "";
+          progress.value = 0;
+        }
+      }.bind(this);
+
     }.bind(this);
+    reader.readAsArrayBuffer(file);
   },
+
   uploadSetToServer: function(e){
     e.preventDefault();
     this.props.uploadSetToServer(this.state.section);

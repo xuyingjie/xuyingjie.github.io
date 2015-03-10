@@ -5,6 +5,35 @@ var Section = React.createClass({
     return {section: [], keyword: ''};
   },
 
+  loadIMG: function(data){
+    ajaxArrayBuffer({
+      url: data.dataset.src,
+      token: publicKey,
+      success: function(rep){
+
+        var blob = new Blob([rep.buffer], {"type": data.dataset.type});
+        var objecturl =  URL.createObjectURL(blob);
+
+        var img = document.createElement("img");
+        img.src = objecturl;
+
+        data.replaceChild(img, data.firstElementChild);
+        data.setAttribute("name", "dec-img");
+      }
+    });
+  },
+
+  imgEvent: function() {
+    var encIMG = document.getElementsByName("enc-img");
+
+    for (var i = 0; i < encIMG.length; i++){
+      var top = encIMG[i].getBoundingClientRect().top;
+      if ( top > 0 && top < window.innerHeight){
+        this.loadIMG(encIMG[i]);
+      }
+    }
+  },
+
   query: function() {
     if (this.getParams().id){
       // console.log("*****ID");
@@ -14,6 +43,8 @@ var Section = React.createClass({
           if (data) {
             this.setState({section: [data]});
             refresh = false;
+            this.imgEvent();
+            window.onscroll = this.imgEvent;  // 滚动加载图片
           }
         }.bind(this));
       }
@@ -33,6 +64,8 @@ var Section = React.createClass({
           this.setState({section: query});
           this.setState({keyword: keyword});
           refresh = false;
+          this.imgEvent();
+          window.onscroll = this.imgEvent;
         }
       }
     }
