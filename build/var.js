@@ -4,11 +4,11 @@
 // - 标题排序（字母排序，修改时间排序）
 // - 文件整体加密，云端存储格式(new Blob([ArrayBuffer]))
 // - scrollLoad with decrypt
-// ? 多种文件格式的显示
+// - 多种文件格式的显示
 // ? 版本回溯
 // ? js文件合并压缩
 // ? "#/scratch": [ckeditor] 加密，没有标题，tag,修改时间排序
-// ? "#/folder": asmcrypto.js 加密 {name:, path:}
+// - "#/folder": asmcrypto.js 加密 {name:, path:}
 // - indexedDB不需要清理(folder不需要cache)
 //
 // ? es6

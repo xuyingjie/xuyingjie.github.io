@@ -103,7 +103,7 @@ var Folder = React.createClass({displayName: "Folder",
       React.createElement("div", {className: "container-fluid"}, 
 
         React.createElement("form", {encType: "multipart/form-data", onSubmit: this.uploadFile}, 
-          React.createElement("input", {id: "file", type: "file", required: true, multiple: true, accept: true}), 
+          React.createElement("input", {id: "file", type: "file", required: true, accept: true}), 
           React.createElement("button", {type: "submit", className: "btn btn-default"}, "Insert")
         ), 
         React.createElement("progress", {id: "upload-progress", min: "0", max: "100", value: "0"}, "0"), 
@@ -112,6 +112,7 @@ var Folder = React.createClass({displayName: "Folder",
           list.map(function(x){
             return (
               React.createElement("a", {className: "list-group-item", key: x.id, href: "#/folder", onClick: this.download.bind(this, x)}, 
+                React.createElement(FileTypeIcons, {type: x.type}), " ", 
                 x.name, 
                 React.createElement("span", {id: x.id, className: "pull-right"}, (x.size/1024).toFixed(2) + "KB")
               )

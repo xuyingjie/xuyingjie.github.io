@@ -93,7 +93,7 @@ var Editor = React.createClass({displayName: "Editor",
         ), 
 
         React.createElement("form", {encType: "multipart/form-data", onSubmit: this.uploadFile}, 
-          React.createElement("input", {id: "file", type: "file", required: true, multiple: true, accept: true}), 
+          React.createElement("input", {id: "file", type: "file", required: true, accept: true}), 
           React.createElement("button", {type: "submit", className: "btn btn-default"}, "Insert")
         ), 
         React.createElement("progress", {id: "upload-progress", min: "0", max: "100", value: "0"}, "0")

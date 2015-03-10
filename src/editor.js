@@ -93,7 +93,7 @@ var Editor = React.createClass({
         </form>
 
         <form encType="multipart/form-data" onSubmit={this.uploadFile}>
-          <input id="file" type="file" required multiple accept/>
+          <input id="file" type="file" required accept/>
           <button type="submit" className="btn btn-default">Insert</button>
         </form>
         <progress id="upload-progress" min="0" max="100" value="0">0</progress>

@@ -103,7 +103,7 @@ var Folder = React.createClass({
       <div className="container-fluid">
 
         <form encType="multipart/form-data" onSubmit={this.uploadFile}>
-          <input id="file" type="file" required multiple accept/>
+          <input id="file" type="file" required accept/>
           <button type="submit" className="btn btn-default">Insert</button>
         </form>
         <progress id="upload-progress" min="0" max="100" value="0">0</progress>
@@ -112,6 +112,7 @@ var Folder = React.createClass({
           {list.map(function(x){
             return (
               <a className="list-group-item" key={x.id} href="#/folder" onClick={this.download.bind(this, x)}>
+                <FileTypeIcons type={x.type} />&nbsp;
                 {x.name}
                 <span id={x.id} className="pull-right">{(x.size/1024).toFixed(2) + "KB"}</span>
               </a>
