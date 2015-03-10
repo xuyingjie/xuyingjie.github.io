@@ -3,4 +3,4 @@
 - React.js
 - IndexedDB(Dexie.js)
 - Object Storage
-- CryptoJS
+- asmCrypto.js

@@ -3,6 +3,7 @@
 // - 存储文章和上传文件一样post
 // - 标题排序（字母排序，修改时间排序）
 // - 文件整体加密，云端存储格式(new Blob([ArrayBuffer]))
+// ? scrollLoad with decrypt
 // ? 多种文件格式的显示
 // ? 版本回溯
 // ? js文件合并压缩
@@ -11,6 +12,7 @@
 // - indexedDB不需要清理(folder不需要cache)
 //
 // ? es6
+// ! simplify function names
 // ! 用 for(var i = 0; i < a.length; i++) 取代 for(var i in a)
 //
 

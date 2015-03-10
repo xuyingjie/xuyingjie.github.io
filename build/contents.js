@@ -6,15 +6,15 @@ var Contents = React.createClass({displayName: "Contents",
 
   sort: function() {
     if (this.state.contents.length === 0){
-      var c = [];
+      var c = this.props.contents.slice(0); // 返回新数组而不是引用
       if (this.props.auth){
-        // 修改时间排序
-        c = this.props.contents.sort(function(a, b){
+        // 修改时间排序. !!!sort数组在原数组上进行排序
+        c.sort(function(a, b){
           return b.timestamp - a.timestamp;
         });
       } else {
         // 字母排序
-        c = this.props.contents.sort(function(a, b){
+        c.sort(function(a, b){
           return a.title.localeCompare(b.title);
         });
       }
