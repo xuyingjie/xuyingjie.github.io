@@ -72,16 +72,18 @@ db.open();
 //
 var ajaxArrayBuffer = function(opts){
   var xhr = new XMLHttpRequest();
-  xhr.responseType = 'arraybuffer';
-  xhr.onreadystatechange = function(){
+
+  xhr.onload = function(){
     if(xhr.readyState === 4){
-      uint8Arr = asmCrypto.AES_CBC.decrypt(xhr.response, opts.token);
-      console.log("AES.decrypt");
-      if (opts.json) {
-        var str = UTF8ArrToStr(uint8Arr);
-        opts.success(JSON.parse(str));
-      } else {
-        opts.success(uint8Arr);
+      if(xhr.status >= 200 && xhr.status < 300 || xhr.status === 304){
+        uint8Arr = asmCrypto.AES_CBC.decrypt(xhr.response, opts.token);
+        console.log("AES.decrypt");
+        if (opts.json) {
+          var str = UTF8ArrToStr(uint8Arr);
+          opts.success(JSON.parse(str));
+        } else {
+          opts.success(uint8Arr);
+        }
       }
     }
   };
@@ -97,12 +99,13 @@ var ajaxArrayBuffer = function(opts){
     };
   }
   xhr.open("GET", opts.url, true);
+  xhr.responseType = "arraybuffer";   // in firefox xhr.responseType must behind xhr.open
   xhr.send(null);
 };
 
 var ajaxJson = function(opts){
   var xhr = new XMLHttpRequest();
-  xhr.onreadystatechange = function(){
+  xhr.onload = function(){
     if(xhr.readyState === 4){
       if(xhr.status >= 200 && xhr.status < 300 || xhr.status === 304){
         // JSON.parse(xhr.responseText),将json字符串转化为json对象。
@@ -169,6 +172,14 @@ var upload = function(opts) {
     };
   }
 
+  xhr.onload = function() {
+    if(xhr.readyState === 4){
+      if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
+        opts.success();
+      }
+    }
+  };
+
   xhr.open("POST", url, true);
   xhr.send(formData);
 
@@ -202,15 +213,6 @@ var timeDiff = function(){
   return Date.now() + '' + Math.floor(Math.random() * 9000 + 1000); // 或加入IP
 };
 
-// little fast than UTF8ArrToStr()
-// Bug: garbled characters.
-// var Uint8ArrayToString = function(v){
-//   var str = "";
-//   for (var i = 0; i < v.length; i++) {
-//     str = str + String.fromCharCode(v[i]);
-//   }
-//   return str;
-// };
 
 /*\
 |*|

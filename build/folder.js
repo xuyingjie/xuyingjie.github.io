@@ -50,16 +50,13 @@ var Folder = React.createClass({displayName: "Folder",
     reader.onload = function(e) {
 
       var key = "folder/" + timeDiff();
-      var opts = {
+
+      upload({
         key: key,
         data: reader.result,
         token: window.localStorage.token,
-        progress: document.getElementById('upload-progress')
-      };
-
-      var xhr = upload(opts);
-      xhr.onload = function() {
-        if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
+        progress: document.getElementById('upload-progress'),
+        success: function() {
 
           var d = {
             id: key,
@@ -71,25 +68,21 @@ var Folder = React.createClass({displayName: "Folder",
           var list = this.state.list;
           list.push(d);
 
-          var opts = {
+          upload({
             key: "folder/list",
             data: strToUTF8Arr(JSON.stringify({"list": list})),
-            token: window.localStorage.token
-          };
-
-          var req = upload(opts);
-          req.onload = function() {
-            if ((req.status >= 200 && req.status < 300) || req.status == 304) {
+            token: window.localStorage.token,
+            success: function() {
               console.log("Upload!!!");
 
               this.setState({list: list});
               document.getElementById("file").value = "";
               document.getElementById('upload-progress').value = 0;
-            }
-          }.bind(this);
+            }.bind(this)
+          });
 
-        }
-      }.bind(this);
+        }.bind(this)
+      });
 
     }.bind(this);
     reader.readAsArrayBuffer(file);

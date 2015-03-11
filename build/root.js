@@ -113,32 +113,23 @@ var Root = React.createClass({displayName: "Root",
       db.contents.put({"id": version, "arr": contents});
       db.set.put({"id": version, "arr": set});
 
-      var opts = {
+      upload({
         key: "set/" + version,
         data: strToUTF8Arr(JSON.stringify({set: set})),
-        token: publicKey
-      };
+        token: publicKey,
+        success: function() {
 
-      var xhr = upload(opts);
-
-      xhr.onload = function() {
-        if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
-
-          var opts = {
+          upload({
             key: "version",
-            data: new Blob([JSON.stringify({version: version})], {type: 'text/json'})
-          };
-
-          var req = upload(opts);
-
-          req.onload = function() {
-            if ((req.status >= 200 && req.status < 300) || req.status == 304) {
+            data: new Blob([JSON.stringify({version: version})], {type: 'text/json'}),
+            success: function() {
               console.log("Save!!!");
               location.href="#/t/"+ t.id;
             }
-          };
+          });
         }
-      };
+      });
+
     }
   },
 

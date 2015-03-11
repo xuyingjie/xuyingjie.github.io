@@ -43,16 +43,13 @@ var Editor = React.createClass({displayName: "Editor",
 
       var key = "u/" + timeDiff();
       var progress = document.getElementById('upload-progress');
-      var opts = {
+
+      upload({
         key: key,
         data: reader.result,
         token: publicKey,
-        progress: progress
-      };
-
-      var xhr = upload(opts);
-      xhr.onload = function() {
-        if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
+        progress: progress,
+        success: function() {
 
           var c = '\n<div name="enc-img" data-name="'+file.name+'" data-type="'+file.type+'" data-src="'+url+key+'"><span class="fa fa-spinner fa-pulse fa-2x"></span></div>';
           var textarea = document.getElementById('content');
@@ -64,8 +61,8 @@ var Editor = React.createClass({displayName: "Editor",
 
           document.getElementById("file").value = "";
           progress.value = 0;
-        }
-      }.bind(this);
+        }.bind(this)
+      });
 
     }.bind(this);
     reader.readAsArrayBuffer(file);

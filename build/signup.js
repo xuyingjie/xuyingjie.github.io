@@ -41,9 +41,11 @@ var SignUp = React.createClass({displayName: "SignUp",
     var xhr = new XMLHttpRequest();
 
     xhr.onload = function() {
-      if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
-        console.log("Success!");
-        this.refs.status.getDOMNode().value = "Success!";
+      if(xhr.readyState === 4){
+        if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
+          console.log("Success!");
+          this.refs.status.getDOMNode().value = "Success!";
+        }
       }
     }.bind(this);
 
