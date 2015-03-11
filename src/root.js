@@ -176,6 +176,7 @@ var routes = (
     <Route name="login" handler={SignIn}/>
     <Route name="join" handler={SignUp}/>
     <Route name="folder" handler={Folder}/>
+    <Route name="tasks" handler={Tasks}/>
     <DefaultRoute handler={Contents}/>
   </Route>
 );

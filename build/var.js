@@ -7,7 +7,7 @@
 // - 多种文件格式的显示
 // ? 版本回溯
 // ? js文件合并压缩
-// ? "#/scratch": [ckeditor] 加密，没有标题，tag,修改时间排序
+// - "#/tasks": 加密,修改时间排序
 // - "#/folder": asmcrypto.js 加密 {name:, path:}
 // - indexedDB不需要清理(folder不需要cache)
 //

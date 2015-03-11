@@ -176,6 +176,7 @@ var routes = (
     React.createElement(Route, {name: "login", handler: SignIn}), 
     React.createElement(Route, {name: "join", handler: SignUp}), 
     React.createElement(Route, {name: "folder", handler: Folder}), 
+    React.createElement(Route, {name: "tasks", handler: Tasks}), 
     React.createElement(DefaultRoute, {handler: Contents})
   )
 );
