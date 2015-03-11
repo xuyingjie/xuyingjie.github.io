@@ -73,7 +73,7 @@ var Folder = React.createClass({displayName: "Folder",
 
           var opts = {
             key: "folder/list",
-            data: JSON.stringify({"list": list}),
+            data: strToUTF8Arr(JSON.stringify({"list": list})),
             token: window.localStorage.token
           };
 

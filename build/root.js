@@ -115,7 +115,7 @@ var Root = React.createClass({displayName: "Root",
 
       var opts = {
         key: "set/" + version,
-        data: JSON.stringify({set: set}),
+        data: strToUTF8Arr(JSON.stringify({set: set})),
         token: publicKey
       };
 
