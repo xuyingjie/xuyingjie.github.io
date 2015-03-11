@@ -7,7 +7,7 @@ var Section = React.createClass({
 
   loadIMG: function(data){
     ajaxArrayBuffer({
-      url: data.dataset.src,
+      url: url + data.dataset.key,
       token: publicKey,
       success: function(rep){
 

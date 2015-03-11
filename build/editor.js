@@ -50,8 +50,16 @@ var Editor = React.createClass({displayName: "Editor",
         token: publicKey,
         progress: progress,
         success: function() {
+          var c = '';
 
-          var c = '\n<div name="enc-img" data-name="'+file.name+'" data-type="'+file.type+'" data-src="'+url+key+'"><span class="fa fa-spinner fa-pulse fa-2x"></span></div>';
+          if (file.type === "image/png" || file.type === "image/jpeg" || file.type === "image/vnd.microsoft.icon"){
+            c += '\n<div name="enc-img" data-name="'+file.name+'" data-type="'+file.type+'" data-key="'+key;
+            c += '"><span class="fa fa-spinner fa-pulse fa-2x"></span></div>';
+          } else {
+            c += '\n<a class="btn btn-default" onclick="nDown(\''+file.name+ '\',\'' +file.type+ '\',\'' +key+ '\',\'' +publicKey+ '\')';
+            c += '"><span class="' +fileTypeIcons(file.type)+ ' fa-lg"></span>&nbsp;' +file.name+ '&nbsp;<span id="'+key+'">' +(file.size/1024).toFixed(2)+ 'KB</span></a>';
+          }
+
           var textarea = document.getElementById('content');
           insertText(textarea, c);
 

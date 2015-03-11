@@ -204,6 +204,57 @@ var insertText = function(obj, str) {
 };
 
 
+//
+// File Type Icons
+//
+function fileTypeIcons (type) {
+  switch (type) {
+    case "image/png":
+    case "image/jpeg":
+    case "image/vnd.microsoft.icon":
+      return 'fa fa-file-image-o';
+    case "application/x-xz":
+    case "application/gzip":
+    case "application/zip":
+      return 'fa fa-file-archive-o';
+    case "text/plain":
+    case "text/x-markdown":
+      return 'fa fa-file-text-o';
+    case "application/pdf":
+      return 'fa fa-file-pdf-o';
+    case "application/msword":
+    case "application/vnd.oasis.opendocument.text":
+      return 'fa fa-file-word-o';
+    default:
+      return 'fa fa-file-o';
+  }
+}
+
+function nDown (name, type, key, token) {
+  var progress = document.getElementById(key);
+
+  ajaxArrayBuffer({
+    url: url + key,
+    token: token,
+    progress: progress,
+    success: function(data){
+      var blob = new Blob([data.buffer], {"type": type});
+      var objecturl =  URL.createObjectURL(blob);
+
+      // 生成下载
+      var anchor = document.createElement("a");
+      anchor.href = objecturl;
+      anchor.download = name;
+      document.body.appendChild(anchor);
+      var evt = document.createEvent("MouseEvents");
+      evt.initEvent("click", true, true);
+      anchor.dispatchEvent(evt);
+      document.body.removeChild(anchor);
+
+      progress.value = 0;
+    }
+  });
+}
 
 
 //
