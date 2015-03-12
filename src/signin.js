@@ -7,16 +7,12 @@ var SignIn = React.createClass({
     var passwd = this.refs.passwd.getDOMNode().value;
 
     ajaxArrayBuffer({
-      url: url + name,
-      json: true,
+      key: name,
       token: passwd,
       success: function(data){
-        // console.log(data);
-        var user = data.user;
-        window.localStorage.token = user.token;
-        window.localStorage.AK = user.AK;
-        window.localStorage.policy = user.policy;
-        window.localStorage.signature = user.signature;
+
+        localStorage.token = data.user.token;
+        localStorage.user = JSON.stringify(data.user);
 
         this.props.login();
         this.refs.name.getDOMNode().value = '';

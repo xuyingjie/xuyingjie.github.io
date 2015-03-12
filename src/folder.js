@@ -6,9 +6,8 @@ var Folder = React.createClass({
 
   componentDidMount: function() {
     ajaxArrayBuffer({
-      url: url + "folder/list",
-      json: true,
-      token: window.localStorage.token,
+      key: "folder/list",
+      token: localStorage.token,
       success: function(data){
         this.setState({list: data.list});
       }.bind(this)
@@ -16,7 +15,7 @@ var Folder = React.createClass({
   },
 
   download: function(file){
-    nDown(file.name, file.type, file.key, window.localStorage.token);
+    nDown(file.name, file.type, file.key, localStorage.token);
   },
 
   uploadFile: function(e){
@@ -32,7 +31,7 @@ var Folder = React.createClass({
       upload({
         key: key,
         data: reader.result,
-        token: window.localStorage.token,
+        token: localStorage.token,
         progress: document.getElementById('upload-progress'),
         success: function() {
 
@@ -48,7 +47,7 @@ var Folder = React.createClass({
           upload({
             key: "folder/list",
             data: strToUTF8Arr(JSON.stringify({"list": list})),
-            token: window.localStorage.token,
+            token: localStorage.token,
             success: function() {
               console.log("Upload!!!");
 

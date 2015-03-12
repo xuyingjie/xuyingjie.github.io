@@ -9,48 +9,35 @@ var SignUp = React.createClass({displayName: "SignUp",
     var AK = this.refs.AK.getDOMNode().value;
     var SK = this.refs.SK.getDOMNode().value;
 
-    var policyJson = {
-      "expiration": "2024-12-01T12:00:00.000Z",
-      "conditions": [
-        {
-          "bucket": bucket
-        }
-      ]
-    };
-    var policy = btoa(JSON.stringify(policyJson));
-    var signature = asmCrypto.HMAC_SHA1.base64(policy, SK);
-
     var user = {
-      "token": token,
+      // qn: {
+      //   "AK": '',
+      //   "policy": '=',
+      //   "signature": '='
+      // },
+      // oss: {
+      //   "AK": '',
+      //   "policy": '=',
+      //   "signature": '='
+      // },
       "AK": AK,
-      "policy": policy,
-      "signature": signature
+      "SK": SK,
+      "token": token
     };
-    var uint8Arr = asmCrypto.AES_CBC.encrypt(JSON.stringify({user: user}), passwd);
-    blob = new Blob([uint8Arr.buffer], {type: 'application/octet-stream'});
 
-    var formData = new FormData();
-    formData.append('OSSAccessKeyId', AK);
-    formData.append('policy', policy);
-    formData.append('signature', signature);
+    localStorage.token = token;
+    localStorage.user = JSON.stringify(user);
 
-    formData.append('Content-Type', blob.type);
-    formData.append('key', name);
-    formData.append("file", blob);
+    upload({
+      key: name,
+      data: strToUTF8Arr(JSON.stringify({user: user})),
+      token: passwd,
+      success: function() {
+        console.log("Success!");
+        this.refs.status.getDOMNode().value = "Success!";
+      }.bind(this)
+    });
 
-    var xhr = new XMLHttpRequest();
-
-    xhr.onload = function() {
-      if(xhr.readyState === 4){
-        if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
-          console.log("Success!");
-          this.refs.status.getDOMNode().value = "Success!";
-        }
-      }
-    }.bind(this);
-
-    xhr.open("POST", url, true);
-    xhr.send(formData);
   },
 
   render: function() {

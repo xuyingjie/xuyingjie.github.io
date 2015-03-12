@@ -7,8 +7,9 @@ var Section = React.createClass({
 
   loadIMG: function(data){
     ajaxArrayBuffer({
-      url: url + data.dataset.key,
+      key: data.dataset.key,
       token: publicKey,
+      uint8Arr: true,
       success: function(rep){
 
         var blob = new Blob([rep.buffer], {"type": data.dataset.type});

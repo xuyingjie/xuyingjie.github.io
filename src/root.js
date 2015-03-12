@@ -7,8 +7,7 @@ var Root = React.createClass({
   // load and cache
   loadSetFromServer: function(){
     ajaxArrayBuffer({
-      url: url + "set/" + this.state.version,
-      json: true,
+      key: "set/" + this.state.version,
       token: publicKey,
       success: function(data){
 
@@ -30,6 +29,7 @@ var Root = React.createClass({
       }.bind(this)
     });
   },
+
   cacheToIndexedDB: function(){
     var v = this.state.version;
     db.etc.put({"id": "version", "version": v});
@@ -50,9 +50,11 @@ var Root = React.createClass({
       this.setState({set: data.arr});
     }.bind(this));
   },
+
   cache: function(){
-    ajaxJson({
-      url: url + "version",
+    ajaxArrayBuffer({
+      key: "version",
+      token: publicKey,
       success: function(data){
         this.setState({version: data.version});
 
@@ -121,7 +123,8 @@ var Root = React.createClass({
 
           upload({
             key: "version",
-            data: new Blob([JSON.stringify({version: version})], {type: 'text/json'}),
+            data: strToUTF8Arr(JSON.stringify({version: version})),
+            token: publicKey,
             success: function() {
               console.log("Save!!!");
               location.href="#/t/"+ t.id;
@@ -138,15 +141,13 @@ var Root = React.createClass({
     location.href=local;
   },
   handleLogout: function() {
-    window.localStorage.removeItem("token");
-    window.localStorage.removeItem("AK");
-    window.localStorage.removeItem("policy");
-    window.localStorage.removeItem("signature");
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
     this.setState({auth: false});
     location.replace("#/");
   },
   auth: function() {
-    if (window.localStorage.token) {
+    if (localStorage.token) {
       this.setState({auth: true});
     }
   },

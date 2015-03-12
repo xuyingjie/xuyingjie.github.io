@@ -35,6 +35,7 @@ var RouteHandler = Router.RouteHandler;
 
 var bucket = 'kxmd';
 var url = 'http://' + bucket + '.oss-cn-beijing.aliyuncs.com/';
+var postURL = 'https://' + bucket + '.oss-cn-beijing.aliyuncs.com/';
 var publicKey = 'GmPw2qjmTsAAUsqa';  // 存储前加密密钥
 
 // or define in this.state
@@ -55,16 +56,6 @@ db.version(1).stores({set: 'id, arr'});
 db.version(1).stores({section: 'id, title, content, timestamp'});
 db.open();
 
-// var a = 0;
-// new Promise(function(resolve){
-//   db.etc.get("version", function(data){
-//     resolve(data);
-//   });
-// }).then(function(data){
-//   a = data.version;
-//   console.log("AA"+a);
-// });
-
 
 //
 // ajax
@@ -78,11 +69,11 @@ var ajaxArrayBuffer = function(opts){
       if(xhr.status >= 200 && xhr.status < 300 || xhr.status === 304){
         uint8Arr = asmCrypto.AES_CBC.decrypt(xhr.response, opts.token);
         console.log("AES.decrypt");
-        if (opts.json) {
+        if (opts.uint8Arr) {
+          opts.success(uint8Arr);
+        } else {
           var str = UTF8ArrToStr(uint8Arr);
           opts.success(JSON.parse(str));
-        } else {
-          opts.success(uint8Arr);
         }
       }
     }
@@ -98,24 +89,17 @@ var ajaxArrayBuffer = function(opts){
       }
     };
   }
-  xhr.open("GET", opts.url, true);
-  xhr.responseType = "arraybuffer";   // in firefox xhr.responseType must behind xhr.open
-  xhr.send(null);
-};
 
-var ajaxJson = function(opts){
-  var xhr = new XMLHttpRequest();
-  xhr.onload = function(){
-    if(xhr.readyState === 4){
-      if(xhr.status >= 200 && xhr.status < 300 || xhr.status === 304){
-        // JSON.parse(xhr.responseText),将json字符串转化为json对象。
-        if (xhr.responseText !== ''){
-          opts.success(JSON.parse(xhr.responseText));
-        }
-      }
-    }
-  };
-  xhr.open("GET", opts.url, true);
+  // //// qiniu
+  // if (opts.key === "version" || opts.key === "tasks/version" || opts.key === "folder/list") {
+  //   url = 'http://' + bucket + '.oss-cn-beijing.aliyuncs.com/';
+  // } else {
+  //   url = 'http://7vzu5q.com1.z0.glb.clouddn.com/';
+  // }
+  // //////
+
+  xhr.open("GET", url + opts.key, true);
+  xhr.responseType = "arraybuffer";   // in firefox xhr.responseType must behind xhr.open
   xhr.send(null);
 };
 
@@ -125,29 +109,14 @@ var ajaxJson = function(opts){
 //
 var upload = function(opts) {
 
-  var blob;
-  if (opts.token) {
-    // opts.data can be ArrayBuffer or Uint8Array. strings will garbled characters.
-    var uint8Arr = asmCrypto.AES_CBC.encrypt(opts.data, opts.token);
-    console.log("AES.encrypt");
-    // new Blob([encList.buffer]) fast than new Blob([encList]) type不是必需的
-    blob = new Blob([uint8Arr.buffer], {type: 'application/octet-stream'});
-  } else {
-    blob = opts.data;
-  }
+  // opts.data can be ArrayBuffer or Uint8Array. strings will garbled characters.
+  var uint8Arr = asmCrypto.AES_CBC.encrypt(opts.data, opts.token);
+  console.log("AES.encrypt");
+  // new Blob([encList.buffer]) fast than new Blob([encList]) type不是必需的
+  var blob = new Blob([uint8Arr.buffer], {type: 'application/octet-stream'});
 
-  var AK = window.localStorage.AK;
-  var policy = window.localStorage.policy;
-  var signature = window.localStorage.signature;
-
-  var formData = new FormData();
-  formData.append('OSSAccessKeyId', AK);
-  formData.append('policy', policy);
-  formData.append('signature', signature);
-
-  formData.append('Content-Type', blob.type);
-  formData.append('key', opts.key);
-  formData.append("file", blob); // 文件或文本内容，必须是表单中的最后一个域。
+  var formData = customForm(opts, blob);
+  // var formData = qiniuForm(opts, blob);
 
   var xhr = new XMLHttpRequest();
 
@@ -167,11 +136,72 @@ var upload = function(opts) {
     }
   };
 
-  xhr.open("POST", url, true);
+  xhr.open("POST", postURL, true);
   xhr.send(formData);
-
-  return xhr;
 };
+
+var customForm = function (opts, blob) {
+  var user = JSON.parse(localStorage.user);
+  var AK = user.AK;
+  var SK = user.SK;
+
+  var policyJson = {
+    "expiration": (new Date(Date.now() + 3600000)).toJSON(),
+    "conditions": [
+      {
+        "bucket": bucket
+      }
+    ]
+  };
+  var policy = btoa(JSON.stringify(policyJson));
+  var signature = asmCrypto.HMAC_SHA1.base64(policy, SK);
+
+  var formData = new FormData();
+  formData.append('OSSAccessKeyId', AK);
+  formData.append('policy', policy);
+  formData.append('signature', signature);
+
+  formData.append('Content-Type', blob.type);
+  formData.append('key', opts.key);
+  formData.append("file", blob); // 文件或文本内容，必须是表单中的最后一个域。
+
+  return formData;
+};
+
+// //// qiniu
+// var qiniuForm = function (opts, blob) {
+//   var user = JSON.parse(localStorage.user);
+//
+//   // policyJson = {
+//   //   "scope": bucket + ":" + opts.key,
+//   //   "deadline": 3600 + Math.floor(Date.now() / 1000)
+//   // };
+//   // var policy = btoa(JSON.stringify(policyJson));
+//   // var signature = asmCrypto.HMAC_SHA1.base64(policy, SK);
+//
+//   var formData = new FormData();
+//   if (opts.key === "version" || opts.key === "tasks/version" || opts.key === "folder/list") {
+//     formData.append('OSSAccessKeyId', user.oss.AK);
+//     formData.append('policy', user.oss.policy);
+//     formData.append('signature', user.oss.signature);
+//     formData.append('Content-Type', blob.type);
+//     postURL = 'https://' + bucket + '.oss-cn-beijing.aliyuncs.com/';
+//   } else {
+//     formData.append('token', user.qn.AK +':'+ safe64(user.qn.signature) +':'+ user.qn.policy);
+//     postURL = 'https://up.qbox.me';
+//   }
+//
+//   formData.append('key', opts.key);
+//   formData.append("file", blob); // 文件或文本内容，必须是表单中的最后一个域。
+//
+//   return formData;
+// };
+// var safe64 = function(base64) {
+//   base64 = base64.replace(/\+/g, "-");
+//   base64 = base64.replace(/\//g, "_");
+//   return base64;
+// };
+// //////
 
 var insertText = function(obj, str) {
   if (document.selection) {
@@ -221,8 +251,9 @@ function nDown (name, type, key, token) {
   var progress = document.getElementById(key);
 
   ajaxArrayBuffer({
-    url: url + key,
+    key: key,
     token: token,
+    uint8Arr: true,
     progress: progress,
     success: function(data){
       var blob = new Blob([data.buffer], {"type": type});

@@ -6,9 +6,8 @@ var Tasks = React.createClass({displayName: "Tasks",
 
   loadTasks: function() {
     ajaxArrayBuffer({
-      url: url + "tasks/" + this.state.version,
-      json: true,
-      token: window.localStorage.token,
+      key: "tasks/" + this.state.version,
+      token: localStorage.token,
       success: function(data){
         this.setState({tasks: data.tasks});
         this.setState({query: data.tasks});
@@ -17,8 +16,9 @@ var Tasks = React.createClass({displayName: "Tasks",
   },
 
   componentDidMount: function() {
-    ajaxJson({
-      url: url + "tasks/version",
+    ajaxArrayBuffer({
+      key: "tasks/version",
+      token: localStorage.token,
       success: function(data){
         this.setState({version: data.version});
         this.loadTasks();
@@ -72,12 +72,13 @@ var Tasks = React.createClass({displayName: "Tasks",
       upload({
         key: "tasks/" + version, //备份部分版本
         data: strToUTF8Arr(JSON.stringify({tasks: tasks})),
-        token: window.localStorage.token,
+        token: localStorage.token,
         success: function() {
 
           upload({
             key: "tasks/version",
-            data: new Blob([JSON.stringify({version: version})], {type: 'text/json'}),
+            data: strToUTF8Arr(JSON.stringify({version: version})),
+            token: localStorage.token,
             success: function() {
               this.setState({version: version});
               this.setState({query: tasks});
