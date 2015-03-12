@@ -6,8 +6,8 @@ var SignUp = React.createClass({
     var name = this.refs.name.getDOMNode().value;
     var passwd = this.refs.passwd.getDOMNode().value;
     var token = this.refs.token.getDOMNode().value;
-    var OSSAccessKeyId = this.refs.OSSAccessKeyId.getDOMNode().value;
-    var OSSAccessKeySecret = this.refs.OSSAccessKeySecret.getDOMNode().value;
+    var AK = this.refs.AK.getDOMNode().value;
+    var SK = this.refs.SK.getDOMNode().value;
 
     var policyJson = {
       "expiration": "2024-12-01T12:00:00.000Z",
@@ -18,11 +18,11 @@ var SignUp = React.createClass({
       ]
     };
     var policy = btoa(JSON.stringify(policyJson));
-    var signature = asmCrypto.HMAC_SHA1.base64(policy, OSSAccessKeySecret);
+    var signature = asmCrypto.HMAC_SHA1.base64(policy, SK);
 
     var user = {
       "token": token,
-      "OSSAccessKeyId": OSSAccessKeyId,
+      "AK": AK,
       "policy": policy,
       "signature": signature
     };
@@ -30,7 +30,7 @@ var SignUp = React.createClass({
     blob = new Blob([uint8Arr.buffer], {type: 'application/octet-stream'});
 
     var formData = new FormData();
-    formData.append('OSSAccessKeyId', OSSAccessKeyId);
+    formData.append('OSSAccessKeyId', AK);
     formData.append('policy', policy);
     formData.append('signature', signature);
 
@@ -73,12 +73,12 @@ var SignUp = React.createClass({
                 <input type="text" className="form-control" id="token" ref="token"/>
               </div>
               <div className="form-group">
-                <label htmlFor="OSSAccessKeyId">OSSAccessKeyId</label>
-                <input type="text" className="form-control" id="OSSAccessKeyId" ref="OSSAccessKeyId"/>
+                <label htmlFor="AK">AK</label>
+                <input type="text" className="form-control" id="AK" ref="AK"/>
               </div>
               <div className="form-group">
-                <label htmlFor="OSSAccessKeySecret">OSSAccessKeySecret</label>
-                <input type="text" className="form-control" id="OSSAccessKeySecret" ref="OSSAccessKeySecret"/>
+                <label htmlFor="SK">SK</label>
+                <input type="text" className="form-control" id="SK" ref="SK"/>
               </div>
               <button type="submit" className="btn btn-default">Sign up</button>
             </form>

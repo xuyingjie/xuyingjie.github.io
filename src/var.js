@@ -136,25 +136,12 @@ var upload = function(opts) {
     blob = opts.data;
   }
 
-  var OSSAccessKeyId = window.localStorage.OSSAccessKeyId;
-  // var OSSAccessKeySecret = window.localStorage.OSSAccessKeySecret;
-  //
-  // var policyJson = {
-  //   "expiration": "2024-12-01T12:00:00.000Z",
-  //   "conditions": [
-  //     {
-  //       "bucket": bucket
-  //     }
-  //   ]
-  // };
-  // var policy = btoa(JSON.stringify(policyJson));
-  // var signature = asmCrypto.HMAC_SHA1.base64(policy, OSSAccessKeySecret);
-
+  var AK = window.localStorage.AK;
   var policy = window.localStorage.policy;
   var signature = window.localStorage.signature;
 
   var formData = new FormData();
-  formData.append('OSSAccessKeyId', OSSAccessKeyId);
+  formData.append('OSSAccessKeyId', AK);
   formData.append('policy', policy);
   formData.append('signature', signature);
 

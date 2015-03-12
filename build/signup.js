@@ -6,8 +6,8 @@ var SignUp = React.createClass({displayName: "SignUp",
     var name = this.refs.name.getDOMNode().value;
     var passwd = this.refs.passwd.getDOMNode().value;
     var token = this.refs.token.getDOMNode().value;
-    var OSSAccessKeyId = this.refs.OSSAccessKeyId.getDOMNode().value;
-    var OSSAccessKeySecret = this.refs.OSSAccessKeySecret.getDOMNode().value;
+    var AK = this.refs.AK.getDOMNode().value;
+    var SK = this.refs.SK.getDOMNode().value;
 
     var policyJson = {
       "expiration": "2024-12-01T12:00:00.000Z",
@@ -18,11 +18,11 @@ var SignUp = React.createClass({displayName: "SignUp",
       ]
     };
     var policy = btoa(JSON.stringify(policyJson));
-    var signature = asmCrypto.HMAC_SHA1.base64(policy, OSSAccessKeySecret);
+    var signature = asmCrypto.HMAC_SHA1.base64(policy, SK);
 
     var user = {
       "token": token,
-      "OSSAccessKeyId": OSSAccessKeyId,
+      "AK": AK,
       "policy": policy,
       "signature": signature
     };
@@ -30,7 +30,7 @@ var SignUp = React.createClass({displayName: "SignUp",
     blob = new Blob([uint8Arr.buffer], {type: 'application/octet-stream'});
 
     var formData = new FormData();
-    formData.append('OSSAccessKeyId', OSSAccessKeyId);
+    formData.append('OSSAccessKeyId', AK);
     formData.append('policy', policy);
     formData.append('signature', signature);
 
@@ -73,12 +73,12 @@ var SignUp = React.createClass({displayName: "SignUp",
                 React.createElement("input", {type: "text", className: "form-control", id: "token", ref: "token"})
               ), 
               React.createElement("div", {className: "form-group"}, 
-                React.createElement("label", {htmlFor: "OSSAccessKeyId"}, "OSSAccessKeyId"), 
-                React.createElement("input", {type: "text", className: "form-control", id: "OSSAccessKeyId", ref: "OSSAccessKeyId"})
+                React.createElement("label", {htmlFor: "AK"}, "AK"), 
+                React.createElement("input", {type: "text", className: "form-control", id: "AK", ref: "AK"})
               ), 
               React.createElement("div", {className: "form-group"}, 
-                React.createElement("label", {htmlFor: "OSSAccessKeySecret"}, "OSSAccessKeySecret"), 
-                React.createElement("input", {type: "text", className: "form-control", id: "OSSAccessKeySecret", ref: "OSSAccessKeySecret"})
+                React.createElement("label", {htmlFor: "SK"}, "SK"), 
+                React.createElement("input", {type: "text", className: "form-control", id: "SK", ref: "SK"})
               ), 
               React.createElement("button", {type: "submit", className: "btn btn-default"}, "Sign up")
             )

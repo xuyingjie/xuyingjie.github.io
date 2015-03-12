@@ -14,7 +14,7 @@ var SignIn = React.createClass({
         // console.log(data);
         var user = data.user;
         window.localStorage.token = user.token;
-        window.localStorage.OSSAccessKeyId = user.OSSAccessKeyId;
+        window.localStorage.AK = user.AK;
         window.localStorage.policy = user.policy;
         window.localStorage.signature = user.signature;
 

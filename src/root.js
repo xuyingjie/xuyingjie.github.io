@@ -139,14 +139,14 @@ var Root = React.createClass({
   },
   handleLogout: function() {
     window.localStorage.removeItem("token");
-    window.localStorage.removeItem("OSSAccessKeyId");
+    window.localStorage.removeItem("AK");
     window.localStorage.removeItem("policy");
     window.localStorage.removeItem("signature");
     this.setState({auth: false});
     location.replace("#/");
   },
   auth: function() {
-    if (window.localStorage.OSSAccessKeyId) {
+    if (window.localStorage.token) {
       this.setState({auth: true});
     }
   },
