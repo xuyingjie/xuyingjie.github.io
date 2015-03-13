@@ -6,7 +6,7 @@
 // - scrollLoad with decrypt
 // - 多种文件格式的显示
 // ? 版本回溯
-// ? js文件合并压缩
+// - js文件合并压缩
 // - "#/tasks": 加密,修改时间排序
 // - "#/folder": asmcrypto.js 加密 {name:, path:}
 // - indexedDB不需要清理(folder不需要cache)
@@ -36,11 +36,13 @@ var RouteHandler = Router.RouteHandler;
 var bucket = 'kxmd';
 var url = 'http://' + bucket + '.oss-cn-beijing.aliyuncs.com/';
 var postURL = 'https://' + bucket + '.oss-cn-beijing.aliyuncs.com/';
-var publicKey = 'GmPw2qjmTsAAUsqa';  // 存储前加密密钥
+// var url = 'http://' + bucket + '.kss.ksyun.com/';
+// var postURL = 'https://' + bucket + '.kss.ksyun.com/';
+var publicKey = 'GmPw2qjmTsAAUsqa'; // 存储前加密密钥
 
 // or define in this.state
-var local = "#/";       // 返回登录前页面
-var refresh = false;    // 异步缓存时 传递刷新条件
+var local = "#/"; // 返回登录前页面
+var refresh = false; // 异步缓存时 传递刷新条件
 
 // markdown converter
 var converter = new Showdown.converter();
@@ -50,10 +52,18 @@ var converter = new Showdown.converter();
 // indexedDB
 //
 var db = new Dexie(bucket);
-db.version(1).stores({etc: 'id, version'});
-db.version(1).stores({contents: 'id, arr'});
-db.version(1).stores({set: 'id, arr'});
-db.version(1).stores({section: 'id, title, content, timestamp'});
+db.version(1).stores({
+  etc: 'id, version'
+});
+db.version(1).stores({
+  contents: 'id, arr'
+});
+db.version(1).stores({
+  set: 'id, arr'
+});
+db.version(1).stores({
+  section: 'id, title, content, timestamp'
+});
 db.open();
 
 
@@ -61,12 +71,12 @@ db.open();
 // ajax
 // or use Promise
 //
-var ajaxArrayBuffer = function(opts){
+var ajaxArrayBuffer = function(opts) {
   var xhr = new XMLHttpRequest();
 
-  xhr.onload = function(){
-    if(xhr.readyState === 4){
-      if(xhr.status >= 200 && xhr.status < 300 || xhr.status === 304){
+  xhr.onload = function() {
+    if (xhr.readyState === 4) {
+      if (xhr.status >= 200 && xhr.status < 300 || xhr.status === 304) {
         uint8Arr = asmCrypto.AES_CBC.decrypt(xhr.response, opts.token);
         console.log("AES.decrypt");
         if (opts.uint8Arr) {
@@ -82,24 +92,26 @@ var ajaxArrayBuffer = function(opts){
     xhr.onprogress = function(e) {
       if (e.lengthComputable) {
         if (e.loaded === e.total) {
-          opts.progress.innerHTML = (e.total/1024).toFixed(2) + "KB";
+          opts.progress.innerHTML = (e.total / 1024).toFixed(2) + "KB";
         } else {
-          opts.progress.innerHTML = ((e.loaded/e.total)*100).toFixed(2) + "%";
+          opts.progress.innerHTML = ((e.loaded / e.total) * 100).toFixed(2) + "%";
         }
       }
     };
   }
 
-  // //// qiniu
+  // ////CDN: qn, kss
   // if (opts.key === "version" || opts.key === "tasks/version" || opts.key === "folder/list") {
-  //   url = 'http://' + bucket + '.oss-cn-beijing.aliyuncs.com/';
+  //   url = 'http://' + bucket + '.oss-cn-beijing.aliyuncs.com/'; //qn
+  //   // url = 'http://' + bucket + '.kss.ksyun.com/';  // kss
   // } else {
-  //   url = 'http://7vzu5q.com1.z0.glb.clouddn.com/';
+  //   url = 'http://7vzu5q.com1.z0.glb.clouddn.com/';  // qn
+  //   // url = 'http://' + bucket + '.kssws.ks-cdn.com/';  //  kss
   // }
   // //////
 
   xhr.open("GET", url + opts.key, true);
-  xhr.responseType = "arraybuffer";   // in firefox xhr.responseType must behind xhr.open
+  xhr.responseType = "arraybuffer"; // in firefox xhr.responseType must behind xhr.open
   xhr.send(null);
 };
 
@@ -113,7 +125,9 @@ var upload = function(opts) {
   var uint8Arr = asmCrypto.AES_CBC.encrypt(opts.data, opts.token);
   console.log("AES.encrypt");
   // new Blob([encList.buffer]) fast than new Blob([encList]) type不是必需的
-  var blob = new Blob([uint8Arr.buffer], {type: 'application/octet-stream'});
+  var blob = new Blob([uint8Arr.buffer], {
+    type: 'application/octet-stream'
+  });
 
   var formData = customForm(opts, blob);
   // var formData = qiniuForm(opts, blob);
@@ -129,7 +143,7 @@ var upload = function(opts) {
   }
 
   xhr.onload = function() {
-    if(xhr.readyState === 4){
+    if (xhr.readyState === 4) {
       if ((xhr.status >= 200 && xhr.status < 300) || xhr.status == 304) {
         opts.success();
       }
@@ -140,7 +154,7 @@ var upload = function(opts) {
   xhr.send(formData);
 };
 
-var customForm = function (opts, blob) {
+var customForm = function(opts, blob) {
   var user = JSON.parse(localStorage.user);
   var AK = user.AK;
   var SK = user.SK;
@@ -148,20 +162,25 @@ var customForm = function (opts, blob) {
   var policyJson = {
     "expiration": (new Date(Date.now() + 3600000)).toJSON(),
     "conditions": [
+      // {
+      //   "acl": "public-read"  // kss
+      // },
       {
         "bucket": bucket
-      }
+      },
+      ["eq", "$key", opts.key]
     ]
   };
   var policy = btoa(JSON.stringify(policyJson));
   var signature = asmCrypto.HMAC_SHA1.base64(policy, SK);
 
   var formData = new FormData();
-  formData.append('OSSAccessKeyId', AK);
+  // formData.append('acl', "public-read"); // kss
+  // formData.append('KSSAccessKeyId', AK); // kss
+  formData.append('OSSAccessKeyId', AK); // oss
   formData.append('policy', policy);
   formData.append('signature', signature);
 
-  formData.append('Content-Type', blob.type);
   formData.append('key', opts.key);
   formData.append("file", blob); // 文件或文本内容，必须是表单中的最后一个域。
 
@@ -224,7 +243,7 @@ var insertText = function(obj, str) {
 //
 // File Type Icons
 //
-function fileTypeIcons (type) {
+function fileTypeIcons(type) {
   switch (type) {
     case "image/png":
     case "image/jpeg":
@@ -247,7 +266,7 @@ function fileTypeIcons (type) {
   }
 }
 
-function nDown (name, type, key, token) {
+function nDown(name, type, key, token) {
   var progress = document.getElementById(key);
 
   ajaxArrayBuffer({
@@ -255,9 +274,11 @@ function nDown (name, type, key, token) {
     token: token,
     uint8Arr: true,
     progress: progress,
-    success: function(data){
-      var blob = new Blob([data.buffer], {"type": type});
-      var objecturl =  URL.createObjectURL(blob);
+    success: function(data) {
+      var blob = new Blob([data.buffer], {
+        "type": type
+      });
+      var objecturl = URL.createObjectURL(blob);
 
       // 生成下载
       var anchor = document.createElement("a");
@@ -278,7 +299,7 @@ function nDown (name, type, key, token) {
 //
 // crypto
 //
-var timeDiff = function(){
+var timeDiff = function() {
   return Date.now() + '' + Math.floor(Math.random() * 9000 + 1000); // 或加入IP
 };
 
@@ -297,7 +318,7 @@ var timeDiff = function(){
 
 /* UTF-8 array to DOMString and vice versa */
 
-function UTF8ArrToStr (aBytes) {
+function UTF8ArrToStr(aBytes) {
 
   var sView = "";
 
@@ -307,16 +328,16 @@ function UTF8ArrToStr (aBytes) {
       nPart > 251 && nPart < 254 && nIdx + 5 < nLen ? /* six bytes */
         /* (nPart - 252 << 30) may be not so safe in ECMAScript! So...: */
         (nPart - 252) * 1073741824 + (aBytes[++nIdx] - 128 << 24) + (aBytes[++nIdx] - 128 << 18) + (aBytes[++nIdx] - 128 << 12) + (aBytes[++nIdx] - 128 << 6) + aBytes[++nIdx] - 128
-      : nPart > 247 && nPart < 252 && nIdx + 4 < nLen ? /* five bytes */
-        (nPart - 248 << 24) + (aBytes[++nIdx] - 128 << 18) + (aBytes[++nIdx] - 128 << 12) + (aBytes[++nIdx] - 128 << 6) + aBytes[++nIdx] - 128
-      : nPart > 239 && nPart < 248 && nIdx + 3 < nLen ? /* four bytes */
-        (nPart - 240 << 18) + (aBytes[++nIdx] - 128 << 12) + (aBytes[++nIdx] - 128 << 6) + aBytes[++nIdx] - 128
-      : nPart > 223 && nPart < 240 && nIdx + 2 < nLen ? /* three bytes */
-        (nPart - 224 << 12) + (aBytes[++nIdx] - 128 << 6) + aBytes[++nIdx] - 128
-      : nPart > 191 && nPart < 224 && nIdx + 1 < nLen ? /* two bytes */
-        (nPart - 192 << 6) + aBytes[++nIdx] - 128
-      : /* nPart < 127 ? */ /* one byte */
-        nPart
+        : nPart > 247 && nPart < 252 && nIdx + 4 < nLen ? /* five bytes */
+          (nPart - 248 << 24) + (aBytes[++nIdx] - 128 << 18) + (aBytes[++nIdx] - 128 << 12) + (aBytes[++nIdx] - 128 << 6) + aBytes[++nIdx] - 128
+          : nPart > 239 && nPart < 248 && nIdx + 3 < nLen ? /* four bytes */
+            (nPart - 240 << 18) + (aBytes[++nIdx] - 128 << 12) + (aBytes[++nIdx] - 128 << 6) + aBytes[++nIdx] - 128
+            : nPart > 223 && nPart < 240 && nIdx + 2 < nLen ? /* three bytes */
+              (nPart - 224 << 12) + (aBytes[++nIdx] - 128 << 6) + aBytes[++nIdx] - 128
+              : nPart > 191 && nPart < 224 && nIdx + 1 < nLen ? /* two bytes */
+                (nPart - 192 << 6) + aBytes[++nIdx] - 128
+                : /* nPart < 127 ? */ /* one byte */
+                nPart
     );
   }
 
@@ -324,9 +345,11 @@ function UTF8ArrToStr (aBytes) {
 
 }
 
-function strToUTF8Arr (sDOMStr) {
+function strToUTF8Arr(sDOMStr) {
 
-  var aBytes, nChr, nStrLen = sDOMStr.length, nArrLen = 0;
+  var aBytes, nChr,
+    nStrLen = sDOMStr.length,
+    nArrLen = 0;
 
   /* mapping... */
 
