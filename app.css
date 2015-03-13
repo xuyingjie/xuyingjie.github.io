@@ -1,37 +1,57 @@
+/** Reset some basic elements */
+body, h1, h2, h3, h4, h5, h6, p, blockquote, pre, hr, dl, dd, ol, ul, figure { margin: 0; padding: 0; }
+
+/** Basic styling */
 body {
-  font-family: 'Open Sans', FZLanTingHei\-R\-GBK, sans-serif;
+  font-family: 'Open Sans', Helvetica, FZLanTingHei\-R\-GBK, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  font-weight: 300;
+  color: #111;
   background-color: #fdfdfd;
-  color: #222;
 }
-textarea {
-  font-family: 'Source Code Pro', 'DejaVu Sans Mono', Consolas, monospace;
-}
+
+/** Set `margin-bottom` to maintain vertycal rhythm */
+h1, h2, h3, h4, h5, h6, p, blockquote, pre, ul, ol, dl { margin-bottom: 15px; }
+
+/** Images */
 img {
   max-width: 100%;
 }
-blockquote {
-  font-size: 14px;
-}
 
+/** Lists */
+ul, ol { margin-left: 30px; }
+li > ul, li > ol { margin-bottom: 0; }
+ul.list-group { margin-left: 0; }
+
+/** Headings */
+h1, h2, h3, h4, h5, h6 { font-weight: 300; }
+
+/** Links */
+a { color: #2a7ae2; text-decoration: none; }
+a:visited { color: #1756a9; }
+a:hover { color: #111; text-decoration: underline; }
+
+/** Blockquotes */
+blockquote { color: #828282; border-left: 4px solid #e8e8e8; padding-left: 15px; font-size: 17px; letter-spacing: -1px; font-style: italic; }
+blockquote > :last-child { margin-bottom: 0; }
+
+/** Code formatting */
 pre, code {
   font-family: 'Source Code Pro', 'DejaVu Sans Mono', Consolas, monospace;
-  font-size: 14px;
+  font-size: 15px;
   border: 1px solid #e8e8e8;
   border-radius: 3px;
   background-color: #eef;
   color: #111;
 }
-code {
-  padding: 1px 5px;
-}
-pre {
-  padding: 8px 12px;
-  overflow-x: scroll;
-}
-pre > code {
-  border: 0;
-  padding-right: 0;
-  padding-left: 0;
+code { padding: 1px 5px; }
+pre { padding: 8px 12px; overflow-x: scroll; }
+pre > code { border: 0; padding-right: 0; padding-left: 0; }
+
+textarea.form-control {
+  font-family: 'Source Code Pro', 'DejaVu Sans Mono', Consolas, monospace;
+  font-size: 16px;
 }
 
 
@@ -62,7 +82,7 @@ pre > code {
 /***  定制form  ***/
 .form-control, .form-control:focus {
   background-color: #fdfdfd;
-  color: #222;
+  color: #111;
   border-width: 0 0 2px;
   border-color: #BABABA;
   border-radius: 0px;
@@ -71,14 +91,13 @@ pre > code {
 }
 .mainput, .mainput:focus {
   background-color: #ffffff;
-  color: #333;
   width: 160px !important;
-  height: 22px;
+  height: 21px;
   padding: 0px;
 }
 .navbar-form {
   margin: 0;
-  padding: 15px 0 13px;
+  padding: 13px 0;
   border: 0;
   box-shadow: none;
 }
@@ -102,11 +121,10 @@ input[type="file"] {
 
 .tasks, .tasks:focus {
   font-family: 'Source Code Pro', 'DejaVu Sans Mono', Consolas, monospace;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: normal;
-  color: #333333;
   background-color: #ffffff;
-  border-width: 1px;
+  border-width: 1px 0;
   border-style: solid;
   border-color: #dfdfdf;
   padding: 0.125rem 0.3125rem 0.0625rem;

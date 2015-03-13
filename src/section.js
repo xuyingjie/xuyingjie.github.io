@@ -94,7 +94,7 @@ var Section = React.createClass({
         return (
           <div>
             <div className="container-fluid">
-              <h3>{x.title}</h3>
+              <h2>{x.title}</h2>
               <span dangerouslySetInnerHTML={{__html: rawMarkup}} />
               {button}
             </div>
