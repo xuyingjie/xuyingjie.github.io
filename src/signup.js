@@ -10,16 +10,6 @@ var SignUp = React.createClass({
     var SK = this.refs.SK.getDOMNode().value;
 
     var user = {
-      // qn: {
-      //   "AK": '',
-      //   "policy": '=',
-      //   "signature": '='
-      // },
-      // oss: {
-      //   "AK": '',
-      //   "policy": '=',
-      //   "signature": '='
-      // },
       "AK": AK,
       "SK": SK,
       "token": token

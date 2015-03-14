@@ -35,9 +35,8 @@ var RouteHandler = Router.RouteHandler;
 
 var bucket = 'kxmd';
 var url = 'http://' + bucket + '.oss-cn-beijing.aliyuncs.com/';
-var postURL = 'https://' + bucket + '.oss-cn-beijing.aliyuncs.com/';
-// var url = 'http://' + bucket + '.kss.ksyun.com/';
-// var postURL = 'https://' + bucket + '.kss.ksyun.com/';
+// var url = 'http://' + bucket + '.kssws.ks-cdn.com/';
+// var url = 'http://7teaz4.com1.z0.glb.clouddn.com/'; // POST: 'http://upload.qiniu.com'
 var publicKey = 'GmPw2qjmTsAAUsqa'; // 存储前加密密钥
 
 // or define in this.state
@@ -100,15 +99,9 @@ var ajaxArrayBuffer = function(opts) {
     };
   }
 
-  // ////CDN: qn, kss
-  // if (opts.key === "version" || opts.key === "tasks/version" || opts.key === "folder/list") {
-  //   url = 'http://' + bucket + '.oss-cn-beijing.aliyuncs.com/'; //qn
-  //   // url = 'http://' + bucket + '.kss.ksyun.com/';  // kss
-  // } else {
-  //   url = 'http://7vzu5q.com1.z0.glb.clouddn.com/';  // qn
-  //   // url = 'http://' + bucket + '.kssws.ks-cdn.com/';  //  kss
-  // }
-  // //////
+  if (opts.key.match("version") !== null || opts.key === "folder/list") {
+    opts.key += "?v=" + Date.now();
+  }
 
   xhr.open("GET", url + opts.key, true);
   xhr.responseType = "arraybuffer"; // in firefox xhr.responseType must behind xhr.open
@@ -130,7 +123,6 @@ var upload = function(opts) {
   });
 
   var formData = customForm(opts, blob);
-  // var formData = qiniuForm(opts, blob);
 
   var xhr = new XMLHttpRequest();
 
@@ -150,7 +142,7 @@ var upload = function(opts) {
     }
   };
 
-  xhr.open("POST", postURL, true);
+  xhr.open("POST", url, true);
   xhr.send(formData);
 };
 
@@ -171,10 +163,15 @@ var customForm = function(opts, blob) {
       ["eq", "$key", opts.key]
     ]
   };
+  // var policyJson = { // qn
+  //   "scope": bucket + ":" + opts.key,
+  //   "deadline": 3600 + Math.floor(Date.now() / 1000)
+  // };
   var policy = btoa(JSON.stringify(policyJson));
   var signature = asmCrypto.HMAC_SHA1.base64(policy, SK);
 
   var formData = new FormData();
+  // formData.append('token', AK + ':' + safe64(signature) + ':' + policy); // qn
   // formData.append('acl', "public-read"); // kss
   // formData.append('KSSAccessKeyId', AK); // kss
   formData.append('OSSAccessKeyId', AK); // oss
@@ -182,45 +179,16 @@ var customForm = function(opts, blob) {
   formData.append('signature', signature);
 
   formData.append('key', opts.key);
-  formData.append("file", blob); // 文件或文本内容，必须是表单中的最后一个域。
+  formData.append('file', blob); // 文件或文本内容，必须是表单中的最后一个域。
 
   return formData;
 };
 
-// //// qiniu
-// var qiniuForm = function (opts, blob) {
-//   var user = JSON.parse(localStorage.user);
-//
-//   // policyJson = {
-//   //   "scope": bucket + ":" + opts.key,
-//   //   "deadline": 3600 + Math.floor(Date.now() / 1000)
-//   // };
-//   // var policy = btoa(JSON.stringify(policyJson));
-//   // var signature = asmCrypto.HMAC_SHA1.base64(policy, SK);
-//
-//   var formData = new FormData();
-//   if (opts.key === "version" || opts.key === "tasks/version" || opts.key === "folder/list") {
-//     formData.append('OSSAccessKeyId', user.oss.AK);
-//     formData.append('policy', user.oss.policy);
-//     formData.append('signature', user.oss.signature);
-//     formData.append('Content-Type', blob.type);
-//     postURL = 'https://' + bucket + '.oss-cn-beijing.aliyuncs.com/';
-//   } else {
-//     formData.append('token', user.qn.AK +':'+ safe64(user.qn.signature) +':'+ user.qn.policy);
-//     postURL = 'https://up.qbox.me';
-//   }
-//
-//   formData.append('key', opts.key);
-//   formData.append("file", blob); // 文件或文本内容，必须是表单中的最后一个域。
-//
-//   return formData;
-// };
 // var safe64 = function(base64) {
 //   base64 = base64.replace(/\+/g, "-");
 //   base64 = base64.replace(/\//g, "_");
 //   return base64;
 // };
-// //////
 
 var insertText = function(obj, str) {
   if (document.selection) {
