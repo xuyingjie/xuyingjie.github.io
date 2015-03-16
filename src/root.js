@@ -138,17 +138,22 @@ var Root = React.createClass({
 
   handleLogin: function() {
     this.setState({auth: true});
+    // this.cache(); // when encrypt all
     location.href=local;
   },
   handleLogout: function() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     this.setState({auth: false});
+    // db.delete(); // when encrypt all
     location.replace("#/");
   },
   auth: function() {
     if (localStorage.token) {
       this.setState({auth: true});
+      // this.cache(); // when encrypt all
+    // } else {
+    //   location.href="#/login";
     }
   },
 

@@ -57,7 +57,7 @@ var Navbar = React.createClass({
     return (
       <nav className="navbar navbar-default">
         <div className="container-fluid">
-          <a className="navbar-brand custom-title" href onClick={this.handleIndexClick}>KXMD</a>
+          <a className="navbar-brand custom-title" href onClick={this.handleIndexClick}>Structure</a>
           <form className="navbar-form navbar-left" role="search" onSubmit={this.handleMainputChange}>
             <input type="text" className="form-control mainput" ref="mainput" onChange={this.handleMainputChange} />
           </form>

@@ -33,7 +33,7 @@ var Link = Router.Link;
 var Route = Router.Route;
 var RouteHandler = Router.RouteHandler;
 
-var bucket = 'kxmd';
+var bucket = 'structure';
 var url = 'http://' + bucket + '.oss-cn-beijing.aliyuncs.com/';
 // var url = 'http://' + bucket + '.kssws.ks-cdn.com/';
 // var url = 'http://7teaz4.com1.z0.glb.clouddn.com/'; // POST: 'http://upload.qiniu.com'
@@ -99,9 +99,9 @@ var ajaxArrayBuffer = function(opts) {
     };
   }
 
-  if (opts.key.match("version") !== null || opts.key === "folder/list") {
-    opts.key += "?v=" + Date.now();
-  }
+  // if (opts.key.match("version") !== null || opts.key === "folder/list") {
+  //   opts.key += "?v=" + Date.now();
+  // }
 
   xhr.open("GET", url + opts.key, true);
   xhr.responseType = "arraybuffer"; // in firefox xhr.responseType must behind xhr.open
@@ -110,7 +110,7 @@ var ajaxArrayBuffer = function(opts) {
 
 
 //
-// oss post
+// post
 //
 var upload = function(opts) {
 
@@ -178,13 +178,19 @@ var customForm = function(opts, blob) {
   formData.append('policy', policy);
   formData.append('signature', signature);
 
+  if (opts.key.match("version") !== null || opts.key === "folder/list") { // oss
+    formData.append('Cache-Control', 'no-cache');
+  } else {
+    formData.append('Cache-Control', 'public,max-age=8640000');
+  }
+
   formData.append('key', opts.key);
   formData.append('file', blob); // 文件或文本内容，必须是表单中的最后一个域。
 
   return formData;
 };
 
-// var safe64 = function(base64) {
+// var safe64 = function(base64) { // qn
 //   base64 = base64.replace(/\+/g, "-");
 //   base64 = base64.replace(/\//g, "_");
 //   return base64;
