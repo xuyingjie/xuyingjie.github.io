@@ -1,6 +1,6 @@
-var SignIn = React.createClass({
+class SignIn extends React.Component {
 
-  handleSubmit: function(e) {
+  handleSubmit(e) {
     e.preventDefault();
 
     var name = this.refs.name.getDOMNode().value;
@@ -19,15 +19,15 @@ var SignIn = React.createClass({
         this.refs.passwd.getDOMNode().value = '';
       }.bind(this)
     });
-  },
+  }
 
-  render: function() {
+  render() {
     return (
       <div className="container-fluid">
         <div className="row">
           <div className="col-sm-5">
 
-            <form onSubmit={this.handleSubmit}>
+            <form onSubmit={this.handleSubmit.bind(this)}>
               <div className="form-group">
                 <label htmlFor="inputName3">Name</label>
                 <input type="text" className="form-control" id="inputName3" ref="name"/>
@@ -44,4 +44,4 @@ var SignIn = React.createClass({
       </div>
     );
   }
-});
+}

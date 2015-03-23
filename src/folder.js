@@ -1,24 +1,25 @@
-var Folder = React.createClass({
+class Folder extends React.Component {
 
-  getInitialState: function() {
-    return {list: []};
-  },
+  constructor(props) {
+    super(props);
+    this.state = {list: []};
+  }
 
-  componentDidMount: function() {
+  componentDidMount() {
     ajaxArrayBuffer({
       key: "folder/list",
-      token: localStorage.token,
+      encrypt: true,
       success: function(data){
         this.setState({list: data.list});
       }.bind(this)
     });
-  },
+  }
 
-  download: function(file){
-    nDown(file.name, file.type, file.key, localStorage.token);
-  },
+  download(file){
+    nDown(file.name, file.type, file.key, true);
+  }
 
-  uploadFile: function(e){
+  uploadFile(e){
     e.preventDefault();
 
     var file = document.getElementById('file').files[0];
@@ -31,7 +32,7 @@ var Folder = React.createClass({
       upload({
         key: key,
         data: reader.result,
-        token: localStorage.token,
+        encrypt: true,
         progress: document.getElementById('upload-progress'),
         success: function() {
 
@@ -47,7 +48,7 @@ var Folder = React.createClass({
           upload({
             key: "folder/list",
             data: strToUTF8Arr(JSON.stringify({"list": list})),
-            token: localStorage.token,
+            encrypt: true,
             success: function() {
               console.log("Upload!!!");
 
@@ -63,15 +64,15 @@ var Folder = React.createClass({
     }.bind(this);
     reader.readAsArrayBuffer(file);
 
-  },
+  }
 
-  render: function() {
+  render() {
     var list = this.state.list.slice(0).reverse();
 
     return (
       <div className="container-fluid">
 
-        <form encType="multipart/form-data" onSubmit={this.uploadFile}>
+        <form encType="multipart/form-data" onSubmit={this.uploadFile.bind(this)}>
           <input id="file" type="file" required accept/>
           <button type="submit" className="btn btn-default">Insert</button>
         </form>
@@ -80,7 +81,7 @@ var Folder = React.createClass({
         <ul className="list-group">
           {list.map(function(x){
             return (
-              <a className="list-group-item" key={x.key} href="#/folder" onClick={this.download.bind(this, x)}>
+              <a className="list-group-item" href="#/folder" onClick={this.download.bind(this, x)}>
                 <i className={fileTypeIcons(x.type) + " fa-fw fa-lg"}></i>&nbsp;
                 {x.name}
                 <span id={x.key} className="pull-right">{(x.size/1024).toFixed(2) + "KB"}</span>
@@ -92,4 +93,4 @@ var Folder = React.createClass({
       </div>
     );
   }
-});
+}

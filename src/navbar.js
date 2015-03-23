@@ -1,20 +1,20 @@
-var Navbar = React.createClass({
+class Navbar extends React.Component {
 
-  handleIndexClick: function(e) {
+  handleIndexClick(e) {
     e.preventDefault();
     this.refs.mainput.getDOMNode().value = '';
     location.href="#/";
-  },
-  handleLogoutClick: function(e) {
+  }
+  handleLogoutClick(e) {
     e.preventDefault();
     this.props.logout();
-  },
-  handleLoginClick: function(e) {
+  }
+  handleLoginClick(e) {
     e.preventDefault();
     local = location.hash;
     location.href="#/login";
-  },
-  handleMainputChange: function(e) {
+  }
+  handleMainputChange(e) {
     e.preventDefault();
     var mainput = this.refs.mainput.getDOMNode().value;
     if (mainput.length > 1){
@@ -22,9 +22,9 @@ var Navbar = React.createClass({
     } else if (mainput === '') {
       location.href="#/";
     }
-  },
+  }
 
-  render: function() {
+  render() {
     var button;
     if(this.props.auth){
       button = (
@@ -39,7 +39,7 @@ var Navbar = React.createClass({
             <span className="fa fa-folder" aria-hidden="true"></span>
           </a>
           <span className="navbar-brand"></span>
-          <a className="navbar-brand" href onClick={this.handleLogoutClick}>
+          <a className="navbar-brand" href onClick={this.handleLogoutClick.bind(this)}>
             <span className="fa fa-sign-out" aria-hidden="true"></span>
           </a>
         </div>
@@ -47,7 +47,7 @@ var Navbar = React.createClass({
     } else {
       button = (
         <div>
-          <a className="navbar-brand" href onClick={this.handleLoginClick}>
+          <a className="navbar-brand" href onClick={this.handleLoginClick.bind(this)}>
             <span className="fa fa-sign-in" aria-hidden="true"></span>
           </a>
         </div>
@@ -57,9 +57,9 @@ var Navbar = React.createClass({
     return (
       <nav className="navbar navbar-default">
         <div className="container-fluid">
-          <a className="navbar-brand custom-title" href onClick={this.handleIndexClick}>Structure</a>
-          <form className="navbar-form navbar-left" role="search" onSubmit={this.handleMainputChange}>
-            <input type="text" className="form-control mainput" ref="mainput" onChange={this.handleMainputChange} />
+          <a className="navbar-brand custom-title" href onClick={this.handleIndexClick.bind(this)}>{siteTitle}</a>
+          <form className="navbar-form navbar-left" role="search" onSubmit={this.handleMainputChange.bind(this)}>
+            <input type="text" className="form-control mainput" ref="mainput" onChange={this.handleMainputChange.bind(this)} />
           </form>
           <div className="navbar-right">
             {button}
@@ -68,4 +68,4 @@ var Navbar = React.createClass({
       </nav>
     );
   }
-});
+}

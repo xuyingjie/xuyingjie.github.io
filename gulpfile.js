@@ -2,6 +2,7 @@ var gulp = require('gulp'),
   jshint = require('gulp-jshint'),
   uglify = require('gulp-uglify'),
   concat = require('gulp-concat');
+var babel = require('gulp-babel');
 
 gulp.task('default', function() {
   // place code for your default task here
@@ -18,6 +19,7 @@ gulp.task('default', function() {
       'build/tasks.js',
       'build/root.js'
     ])
+    .pipe(babel())
     .pipe(jshint())
     .pipe(uglify())
     .pipe(concat('app.js'))

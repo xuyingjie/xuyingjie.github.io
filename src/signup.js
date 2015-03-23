@@ -1,6 +1,6 @@
-var SignUp = React.createClass({
+class SignUp extends React.Component {
 
-  handleSubmit: function(e) {
+  handleSubmit(e) {
     e.preventDefault();
 
     var name = this.refs.name.getDOMNode().value;
@@ -9,11 +9,7 @@ var SignUp = React.createClass({
     var AK = this.refs.AK.getDOMNode().value;
     var SK = this.refs.SK.getDOMNode().value;
 
-    var user = {
-      "AK": AK,
-      "SK": SK,
-      "token": token
-    };
+    var user = { AK, SK, token };
 
     localStorage.token = token;
     localStorage.user = JSON.stringify(user);
@@ -28,15 +24,15 @@ var SignUp = React.createClass({
       }.bind(this)
     });
 
-  },
+  }
 
-  render: function() {
+  render() {
     return (
       <div className="container-fluid">
         <div className="row">
           <div className="col-sm-5">
 
-            <form onSubmit={this.handleSubmit}>
+            <form onSubmit={this.handleSubmit.bind(this)}>
               <div className="form-group">
                 <label htmlFor="inputName3">Name</label>
                 <input type="text" className="form-control" id="inputName3" ref="name"/>
@@ -68,4 +64,4 @@ var SignUp = React.createClass({
       </div>
     );
   }
-});
+}

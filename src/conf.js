@@ -9,9 +9,8 @@
 // - js文件合并压缩
 // - "#/tasks": 加密,修改时间排序
 // - "#/folder": asmcrypto.js 加密 {name:, path:}
-// - indexedDB不需要清理(folder不需要cache)
 //
-// ? es6
+// - es6
 // ! simplify function names
 // ! 用 for(var i = 0; i < a.length; i++) 取代 for(var i in a)
 //
@@ -19,7 +18,6 @@
 //
 // Docouments
 // JavaScript: http://javascript.ruanyifeng.com/
-// ReactRouter overview: https://github.com/rackt/react-router/blob/master/docs/guides/overview.md
 // asmCrypto: https://github.com/vibornoff/asmcrypto.js#aes_cbc
 //
 
@@ -27,24 +25,17 @@
 //
 // Global Variable
 //
-var Router = ReactRouter;
-var DefaultRoute = Router.DefaultRoute;
-var Link = Router.Link;
-var Route = Router.Route;
-var RouteHandler = Router.RouteHandler;
+const siteTitle = 'Structure';
+const bucket = 'structure';
+const publicKey = 'GmPw2qjmTsAAUsqa'; // 存储前加密密钥
 
-var bucket = 'structure';
-var url = 'http://' + bucket + '.oss-cn-beijing.aliyuncs.com/';
-// var url = 'http://' + bucket + '.kssws.ks-cdn.com/';
-// var url = 'http://7teaz4.com1.z0.glb.clouddn.com/'; // POST: 'http://upload.qiniu.com'
-var publicKey = 'GmPw2qjmTsAAUsqa'; // 存储前加密密钥
+const url = 'http://' + bucket + '.oss-cn-beijing.aliyuncs.com/';
+// const url = 'http://' + bucket + '.kssws.ks-cdn.com/';
+// const url = 'http://7teaz4.com1.z0.glb.clouddn.com/'; // POST: 'http://upload.qiniu.com'
 
 // or define in this.state
-var local = "#/"; // 返回登录前页面
+var local = '#/'; // 返回登录前页面
 var refresh = false; // 异步缓存时 传递刷新条件
-
-// markdown converter
-var converter = new Showdown.converter();
 
 
 //
@@ -70,18 +61,21 @@ db.open();
 // ajax
 // or use Promise
 //
-var ajaxArrayBuffer = function(opts) {
+function ajaxArrayBuffer(opts) {
+  "use strict";
   var xhr = new XMLHttpRequest();
 
   xhr.onload = function() {
     if (xhr.readyState === 4) {
       if (xhr.status >= 200 && xhr.status < 300 || xhr.status === 304) {
-        uint8Arr = asmCrypto.AES_CBC.decrypt(xhr.response, opts.token);
+
+        let token = opts.token ? opts.token : (opts.encrypt ? localStorage.token : publicKey);
+        let uint8Arr = asmCrypto.AES_CBC.decrypt(xhr.response, token);
         console.log("AES.decrypt");
         if (opts.uint8Arr) {
           opts.success(uint8Arr);
         } else {
-          var str = UTF8ArrToStr(uint8Arr);
+          let str = UTF8ArrToStr(uint8Arr);
           opts.success(JSON.parse(str));
         }
       }
@@ -106,16 +100,13 @@ var ajaxArrayBuffer = function(opts) {
   xhr.open("GET", url + opts.key, true);
   xhr.responseType = "arraybuffer"; // in firefox xhr.responseType must behind xhr.open
   xhr.send(null);
-};
+}
 
+function upload(opts) {
 
-//
-// post
-//
-var upload = function(opts) {
-
+  var token = opts.token ? opts.token : (opts.encrypt ? localStorage.token : publicKey);
   // opts.data can be ArrayBuffer or Uint8Array. strings will garbled characters.
-  var uint8Arr = asmCrypto.AES_CBC.encrypt(opts.data, opts.token);
+  var uint8Arr = asmCrypto.AES_CBC.encrypt(opts.data, token);
   console.log("AES.encrypt");
   // new Blob([encList.buffer]) fast than new Blob([encList]) type不是必需的
   var blob = new Blob([uint8Arr.buffer], {
@@ -144,9 +135,9 @@ var upload = function(opts) {
 
   xhr.open("POST", url, true);
   xhr.send(formData);
-};
+}
 
-var customForm = function(opts, blob) {
+function customForm(opts, blob) {
   var user = JSON.parse(localStorage.user);
   var AK = user.AK;
   var SK = user.SK;
@@ -188,15 +179,15 @@ var customForm = function(opts, blob) {
   formData.append('file', blob); // 文件或文本内容，必须是表单中的最后一个域。
 
   return formData;
-};
+}
 
-// var safe64 = function(base64) { // qn
+// function safe64(base64) { // qn
 //   base64 = base64.replace(/\+/g, "-");
 //   base64 = base64.replace(/\//g, "_");
 //   return base64;
 // };
 
-var insertText = function(obj, str) {
+function insertText(obj, str) {
   if (document.selection) {
     var sel = document.selection.createRange();
     sel.text = str;
@@ -211,7 +202,7 @@ var insertText = function(obj, str) {
   } else {
     obj.value += str;
   }
-};
+}
 
 
 //
@@ -240,12 +231,12 @@ function fileTypeIcons(type) {
   }
 }
 
-function nDown(name, type, key, token) {
+function nDown(name, type, key, encrypt) {
   var progress = document.getElementById(key);
 
   ajaxArrayBuffer({
     key: key,
-    token: token,
+    encrypt: encrypt,
     uint8Arr: true,
     progress: progress,
     success: function(data) {
@@ -269,13 +260,9 @@ function nDown(name, type, key, token) {
   });
 }
 
-
-//
-// crypto
-//
-var timeDiff = function() {
+function timeDiff() {
   return Date.now() + '' + Math.floor(Math.random() * 9000 + 1000); // 或加入IP
-};
+}
 
 
 /*\

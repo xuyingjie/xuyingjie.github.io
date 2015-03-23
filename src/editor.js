@@ -1,39 +1,45 @@
-var Editor = React.createClass({
-  mixins: [Router.State],
+class Editor extends React.Component {
 
-  getInitialState: function() {
-    return {section: {id: '', title: '', content: ''}};
-  },
+  constructor(props) {
+    super(props);
+    this.state = {section: {id: '', title: '', content: ''}};
+  }
 
-  tick: function() {
-    if (this.getParams().id){
-      db.section.get(this.getParams().id, function(data){
+  tick() {
+    let paramsID = location.hash.slice(4);
+
+    if (paramsID){
+      db.section.get(paramsID, function(data){
         if (data) {
           this.setState({section: data});
           clearInterval(this.interval);
         }
       }.bind(this));
+    } else {
+      clearInterval(this.interval);
     }
-  },
-  componentDidMount: function() {
-    this.interval = setInterval(this.tick, 5);  // 等待cache完成
-  },
-  componentWillUnmount: function() {
-    clearInterval(this.interval);
-  },
+  }
 
-  handleTitleChange: function(event) {
+  componentDidMount() {
+    this.interval = setInterval(this.tick.bind(this), 5);  // 等待cache完成
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+
+  handleTitleChange(event) {
     var x = this.state.section;
     x.title = event.target.value;
     this.setState({section: x});
-  },
-  handleContentChange: function(event) {
+  }
+  handleContentChange(event) {
     var x = this.state.section;
     x.content = event.target.value;
     this.setState({section: x});
-  },
+  }
 
-  uploadFile: function(e){
+  uploadFile(e){
     e.preventDefault();    // 阻止默认行为的发生。如跳转。
 
     var file = document.getElementById('file').files[0];
@@ -47,17 +53,20 @@ var Editor = React.createClass({
       upload({
         key: key,
         data: reader.result,
-        token: publicKey,
+        encrypt: false,
         progress: progress,
         success: function() {
           var c = '';
 
           if (file.type === "image/png" || file.type === "image/jpeg" || file.type === "image/vnd.microsoft.icon"){
-            c += '\n<div name="enc-img" data-name="'+file.name+'" data-type="'+file.type+'" data-key="'+key;
-            c += '"><span class="fa fa-spinner fa-pulse fa-2x"></span></div>';
+            c = `
+<span name="enc-img" data-name="${file.name}" data-type="${file.type}" data-key="${key}"><i class="fa fa-spinner fa-pulse fa-2x"></i></span>
+`;
           } else {
-            c += '\n<a class="btn btn-default" onclick="nDown(\''+file.name+ '\',\'' +file.type+ '\',\'' +key+ '\',\'' +publicKey+ '\')';
-            c += '"><span class="' +fileTypeIcons(file.type)+ ' fa-lg"></span>&nbsp;' +file.name+ '&nbsp;<span id="'+key+'">' +(file.size/1024).toFixed(2)+ 'KB</span></a>';
+            c = `
+<a class="btn btn-default" onclick="nDown('${file.name}','${file.type}','${key}',false)">
+<i class="${fileTypeIcons(file.type)} fa-lg"></i>&nbsp;${file.name}&nbsp;<span id="${key}">${(file.size/1024).toFixed(2)}KB</span></a>
+`;
           }
 
           var textarea = document.getElementById('content');
@@ -74,30 +83,30 @@ var Editor = React.createClass({
 
     }.bind(this);
     reader.readAsArrayBuffer(file);
-  },
+  }
 
-  uploadSetToServer: function(e){
+  uploadSetToServer(e){
     e.preventDefault();
     this.props.uploadSetToServer(this.state.section);
-  },
+  }
 
-  render: function() {
+  render() {
     var x = this.state.section;
     // console.log(x);
     return (
       <div className="container-fluid">
 
-        <form onSubmit={this.uploadSetToServer}>
+        <form onSubmit={this.uploadSetToServer.bind(this)}>
           <div className="form-group">
-            <input type="text" className="form-control" placeholder="key" onChange={this.handleTitleChange} value={x.title} />
+            <input type="text" className="form-control" placeholder="key" onChange={this.handleTitleChange.bind(this)} value={x.title} />
           </div>
           <div className="form-group">
-            <textarea id="content" className="form-control" rows="17" placeholder="value" onChange={this.handleContentChange} value={x.content} />
+            <textarea id="content" className="form-control" rows="17" placeholder="value" onChange={this.handleContentChange.bind(this)} value={x.content} />
           </div>
           <button type="submit" className="btn btn-default pull-right">Save</button>
         </form>
 
-        <form encType="multipart/form-data" onSubmit={this.uploadFile}>
+        <form encType="multipart/form-data" onSubmit={this.uploadFile.bind(this)}>
           <input id="file" type="file" required accept/>
           <button type="submit" className="btn btn-default">Insert</button>
         </form>
@@ -106,4 +115,4 @@ var Editor = React.createClass({
       </div>
     );
   }
-});
+}

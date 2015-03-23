@@ -1,10 +1,11 @@
-var Contents = React.createClass({
+class Contents extends React.Component {
 
-  getInitialState: function() {
-    return {contents: []};
-  },
+  constructor(props) {
+    super(props);
+    this.state = {contents: []};
+  }
 
-  sort: function() {
+  sort() {
     if (this.state.contents.length === 0){
       var c = this.props.contents.slice(0); // 返回新数组而不是引用
       if (this.props.auth){
@@ -22,21 +23,23 @@ var Contents = React.createClass({
     } else {
       clearInterval(this.interval);
     }
-  },
-  componentDidMount: function() {
-    this.interval = setInterval(this.sort, 5);
-  },
-  componentWillUnmount: function() {
-    clearInterval(this.interval);
-  },
+  }
 
-  render: function() {
+  componentDidMount() {
+    this.interval = setInterval(this.sort.bind(this), 5);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.interval);
+  }
+
+  render() {
     return (
       <div className="container-fluid">
         {this.state.contents.map(function(x){
-          return <a className="btn btn-default" href={"#/t/" + x.id} role="button">{x.title}</a>;
+          return <a className="btn btn-default" key={x.id} href={"#/t/" + x.id} role="button">{x.title}</a>;
         })}
       </div>
     );
   }
-});
+}

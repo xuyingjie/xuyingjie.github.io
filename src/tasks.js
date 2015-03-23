@@ -1,50 +1,51 @@
-var Tasks = React.createClass({
+class Tasks extends React.Component {
 
-  getInitialState: function() {
-    return {version: 0, tasks: [], query: [], editID: ''};
-  },
+  constructor(props) {
+    super(props);
+    this.state = {version: 0, tasks: [], query: [], editID: ''};
+  }
 
-  loadTasks: function() {
+  loadTasks() {
     ajaxArrayBuffer({
       key: "tasks/" + this.state.version,
-      token: localStorage.token,
+      encrypt: true,
       success: function(data){
         this.setState({tasks: data.tasks});
         this.setState({query: data.tasks});
       }.bind(this)
     });
-  },
+  }
 
-  componentDidMount: function() {
+  componentDidMount() {
     ajaxArrayBuffer({
       key: "tasks/version",
-      token: localStorage.token,
+      encrypt: true,
       success: function(data){
         this.setState({version: data.version});
         this.loadTasks();
       }.bind(this)
     });
-  },
+  }
 
-  handleChange: function(e) {
+  handleChange(e) {
     var keyword = e.target.value;
     // console.log("Query");
     var query = [];
     var s = new RegExp(keyword, "i");
-    this.state.tasks.forEach(function(x){
+    for (let x of this.state.tasks) {
       if (x.content.match(s) !== null) {
         query.push(x);
       }
-    });
+    }
     this.setState({query: query});
-  },
+  }
 
-  handleEdit: function(t) {
+  handleEdit(t) {
     this.setState({editID: t.id});
     this.refs.content.getDOMNode().value = t.content;
-  },
+  }
 
-  save: function(e) {
+  save(e) {
     e.preventDefault();
 
     if (this.refs.content.getDOMNode().value !== ''){
@@ -52,7 +53,7 @@ var Tasks = React.createClass({
       var tasks = this.state.tasks;
 
       if (this.state.editID !== ''){
-        for (var i in tasks) {
+        for (let i in tasks) {
           if (this.state.editID === tasks[i].id) {
             tasks.splice(i,1);
             this.setState({editID: ''});
@@ -72,13 +73,13 @@ var Tasks = React.createClass({
       upload({
         key: "tasks/" + version, //备份部分版本
         data: strToUTF8Arr(JSON.stringify({tasks: tasks})),
-        token: localStorage.token,
+        encrypt: true,
         success: function() {
 
           upload({
             key: "tasks/version",
             data: strToUTF8Arr(JSON.stringify({version: version})),
-            token: localStorage.token,
+            encrypt: true,
             success: function() {
               this.setState({version: version});
               this.setState({query: tasks});
@@ -90,16 +91,16 @@ var Tasks = React.createClass({
       });
 
     }
-  },
+  }
 
-  render: function() {
+  render() {
     var tasks = this.state.query.slice(0).reverse();
 
     return (
       <div className="container-fluid">
-        <form onSubmit={this.save}>
+        <form onSubmit={this.save.bind(this)}>
           <div className="form-group">
-            <input type="text" className="form-control tasks" placeholder="tasks" onChange={this.handleChange} ref="content" />
+            <input type="text" className="form-control tasks" placeholder="tasks" onChange={this.handleChange.bind(this)} ref="content" />
           </div>
         </form>
 
@@ -118,4 +119,4 @@ var Tasks = React.createClass({
       </div>
     );
   }
-});
+}

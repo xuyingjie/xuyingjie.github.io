@@ -1,25 +1,26 @@
-var Root = React.createClass({
+class Root extends React.Component {
 
-  getInitialState: function() {
-    return {version: 0, contents: [], set: [], auth: false};
-  },
+  constructor(props) {
+    super(props);
+    this.state = {version: 0, contents: [], set: [], auth: false, url: location.hash};
+  }
 
   // load and cache
-  loadSetFromServer: function(){
+  loadSetFromServer(){
     ajaxArrayBuffer({
       key: "set/" + this.state.version,
-      token: publicKey,
+      encrypt: false,
       success: function(data){
 
         var contents = [];
-        data.set.forEach(function(x){
+        for (let x of data.set) {
           var t = {
             id: x.id,
             title: x.title,
             timestamp: x.timestamp
           };
           contents.push(t);
-        });
+        }
         this.setState({contents: contents});
         this.setState({set: data.set});
 
@@ -28,20 +29,21 @@ var Root = React.createClass({
 
       }.bind(this)
     });
-  },
+  }
 
-  cacheToIndexedDB: function(){
+  cacheToIndexedDB(){
     var v = this.state.version;
     db.etc.put({"id": "version", "version": v});
     db.contents.put({"id": v, "arr": this.state.contents});
     db.set.put({"id": v, "arr": this.state.set});
-    this.state.set.forEach(function(x){
+    for (let x of this.state.set) {
       db.section.put(x).then(function(){
         refresh = true;
       });
-    });
-  },
-  loadSetFromIndexedDB: function(){
+    }
+  }
+
+  loadSetFromIndexedDB(){
     var v = this.state.version;
     db.contents.get(v, function(data){
       this.setState({contents: data.arr});
@@ -49,12 +51,12 @@ var Root = React.createClass({
     db.set.get(v, function(data){
       this.setState({set: data.arr});
     }.bind(this));
-  },
+  }
 
-  cache: function(){
+  cache(){
     ajaxArrayBuffer({
       key: "version",
-      token: publicKey,
+      encrypt: false,
       success: function(data){
         this.setState({version: data.version});
 
@@ -75,10 +77,10 @@ var Root = React.createClass({
 
       }.bind(this)
     });
-  },
+  }
 
   // post to database server
-  handleUploadSetToServer: function(data){
+  handleUploadSetToServer(data){
     if (data.title !== '') {
 
       var version = this.state.version + 1;
@@ -97,7 +99,7 @@ var Root = React.createClass({
         t.content = data.content;
         set.push(t);
       } else {
-        for (var i in contents) {
+        for (let i in contents) {
           if (t.id === contents[i].id) {
             contents[i] = t;
             t.content = data.content;
@@ -118,13 +120,13 @@ var Root = React.createClass({
       upload({
         key: "set/" + version,
         data: strToUTF8Arr(JSON.stringify({set: set})),
-        token: publicKey,
+        encrypt: false,
         success: function() {
 
           upload({
             key: "version",
             data: strToUTF8Arr(JSON.stringify({version: version})),
-            token: publicKey,
+            encrypt: false,
             success: function() {
               console.log("Save!!!");
               location.href="#/t/"+ t.id;
@@ -134,59 +136,105 @@ var Root = React.createClass({
       });
 
     }
-  },
+  }
 
-  handleLogin: function() {
+  handleLogin() {
     this.setState({auth: true});
     // this.cache(); // when encrypt all
     location.href=local;
-  },
-  handleLogout: function() {
+  }
+
+  handleLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     this.setState({auth: false});
     // db.delete(); // when encrypt all
+    // this.setState({version: 0});
+    // this.setState({contents: []});
+    // this.setState({set: []});
     location.replace("#/");
-  },
-  auth: function() {
+  }
+
+  auth() {
     if (localStorage.token) {
       this.setState({auth: true});
       // this.cache(); // when encrypt all
     // } else {
     //   location.href="#/login";
     }
-  },
-
-  componentDidMount: function() {
-    this.auth();
-    this.cache();
-  },
-
-  render: function(){
-    return (
-      <div>
-        <Navbar auth={this.state.auth} logout={this.handleLogout} />
-        <RouteHandler {...this.state} uploadSetToServer={this.handleUploadSetToServer} login={this.handleLogin} />
-      </div>
-    );
   }
 
-});
+  componentDidMount() {
+    this.auth();
+    this.cache();
+    window.onhashchange = () => this.setState({ url : location.hash });
+  }
 
-var routes = (
-  <Route path="/" handler={Root}>
-    <Route name="t" path="/t/:id" handler={Section}/>
-    <Route name="s" path="/s/:keyword" handler={Section}/>
-    <Route name="a" handler={Editor}/>
-    <Route name="e" path="/e/:id" handler={Editor}/>
-    <Route name="login" handler={SignIn}/>
-    <Route name="join" handler={SignUp}/>
-    <Route name="folder" handler={Folder}/>
-    <Route name="tasks" handler={Tasks}/>
-    <DefaultRoute handler={Contents}/>
-  </Route>
-);
+  render(){
+    var page;
+    switch (this.state.url.split('/')[1]) {
+      case 't':
+      case 's':
+        page = (
+          <div>
+            <Navbar auth={this.state.auth} logout={this.handleLogout.bind(this)} />
+            <Section {...this.state} />
+          </div>
+        );
+        break;
+      case 'a':
+      case 'e':
+        page = (
+          <div>
+            <Navbar auth={this.state.auth} logout={this.handleLogout.bind(this)} />
+            <Editor {...this.state} uploadSetToServer={this.handleUploadSetToServer.bind(this)} />
+          </div>
+        );
+        break;
+      case 'login':
+        page = (
+          <div>
+            <Navbar auth={this.state.auth} logout={this.handleLogout.bind(this)} />
+            <SignIn {...this.state} login={this.handleLogin.bind(this)} />
+          </div>
+        );
+        break;
+      case 'join':
+        page = (
+          <div>
+            <Navbar auth={this.state.auth} logout={this.handleLogout.bind(this)} />
+            <SignUp {...this.state} />
+          </div>
+        );
+        break;
+      case 'folder':
+        page = (
+          <div>
+            <Navbar auth={this.state.auth} logout={this.handleLogout.bind(this)} />
+            <Folder {...this.state} />
+          </div>
+        );
+        break;
+      case 'tasks':
+        page = (
+          <div>
+            <Navbar auth={this.state.auth} logout={this.handleLogout.bind(this)} />
+            <Tasks {...this.state} />
+          </div>
+        );
+        break;
+      default:
+        page = (
+          <div>
+            <Navbar auth={this.state.auth} logout={this.handleLogout.bind(this)} />
+            <Contents {...this.state} />
+          </div>
+        );
+        break;
+    }
 
-Router.run(routes, function (Handler) {
-  React.render(<Handler/>, document.body);
-});
+    return <div>{page}</div>;
+  }
+}
+
+React.render(<Root />, document.body);
