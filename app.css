@@ -9,6 +9,7 @@ body {
   font-weight: 300;
   color: #111;
   background-color: #fdfdfd;
+  padding-top: 76px;
 }
 
 /** Set `margin-bottom` to maintain vertycal rhythm */

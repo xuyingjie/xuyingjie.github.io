@@ -24,6 +24,18 @@ class Navbar extends React.Component {
     }
   }
 
+  preventDefault(e) {
+    e.preventDefault();
+  }
+
+  drop(e) {
+    e.preventDefault();
+    var key = e.dataTransfer.getData('key');
+    if (key !== ''){
+      this.props.erase(key);
+    }
+  }
+
   render() {
     var button;
     if(this.props.auth){
@@ -38,6 +50,9 @@ class Navbar extends React.Component {
           <a className="navbar-brand" href="#/folder">
             <span className="fa fa-folder" aria-hidden="true"></span>
           </a>
+          <div className="navbar-brand" onDragOver={this.preventDefault} onDrop={this.drop.bind(this)}>
+            <span className="fa fa-trash" aria-hidden="true"></span>
+          </div>
           <span className="navbar-brand"></span>
           <a className="navbar-brand" href onClick={this.handleLogoutClick.bind(this)}>
             <span className="fa fa-sign-out" aria-hidden="true"></span>
@@ -55,7 +70,7 @@ class Navbar extends React.Component {
     }
 
     return (
-      <nav className="navbar navbar-default">
+      <nav className="navbar navbar-default navbar-fixed-top">
         <div className="container-fluid">
           <a className="navbar-brand custom-title" href onClick={this.handleIndexClick.bind(this)}>{siteTitle}</a>
           <form className="navbar-form navbar-left" role="search" onSubmit={this.handleMainputChange.bind(this)}>

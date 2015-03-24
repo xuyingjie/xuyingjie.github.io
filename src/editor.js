@@ -39,11 +39,7 @@ class Editor extends React.Component {
     this.setState({section: x});
   }
 
-  uploadFile(e){
-    e.preventDefault();    // 阻止默认行为的发生。如跳转。
-
-    var file = document.getElementById('file').files[0];
-
+  readAndUpload(file) {
     var reader = new FileReader();
     reader.onload = function(e) {
 
@@ -51,10 +47,10 @@ class Editor extends React.Component {
       var progress = document.getElementById('upload-progress');
 
       upload({
-        key: key,
+        key,
         data: reader.result,
-        encrypt: false,
-        progress: progress,
+        open,
+        progress,
         success: function() {
           var c = '';
 
@@ -64,7 +60,7 @@ class Editor extends React.Component {
 `;
           } else {
             c = `
-<a class="btn btn-default" onclick="nDown('${file.name}','${file.type}','${key}',false)">
+<a class="btn btn-default" data-key="${key}" draggable="true" ondragstart="dragStart(event)" onclick="nDown('${file.name}','${file.type}','${key}',${open})">
 <i class="${fileTypeIcons(file.type)} fa-lg"></i>&nbsp;${file.name}&nbsp;<span id="${key}">${(file.size/1024).toFixed(2)}KB</span></a>
 `;
           }
@@ -85,6 +81,15 @@ class Editor extends React.Component {
     reader.readAsArrayBuffer(file);
   }
 
+  uploadFile(e){
+    e.preventDefault();    // 阻止默认行为的发生。如跳转。
+
+    var files = document.getElementById('file').files;
+    for (let i = 0; i < files.length; i++) {
+      this.readAndUpload(files[i]);
+    }
+  }
+
   uploadSetToServer(e){
     e.preventDefault();
     this.props.uploadSetToServer(this.state.section);
@@ -92,7 +97,6 @@ class Editor extends React.Component {
 
   render() {
     var x = this.state.section;
-    // console.log(x);
     return (
       <div className="container-fluid">
 
@@ -107,7 +111,7 @@ class Editor extends React.Component {
         </form>
 
         <form encType="multipart/form-data" onSubmit={this.uploadFile.bind(this)}>
-          <input id="file" type="file" required accept/>
+          <input id="file" type="file" required accept multiple />
           <button type="submit" className="btn btn-default">Insert</button>
         </form>
         <progress id="upload-progress" min="0" max="100" value="0">0</progress>

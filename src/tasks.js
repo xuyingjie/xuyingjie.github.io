@@ -8,7 +8,6 @@ class Tasks extends React.Component {
   loadTasks() {
     ajaxArrayBuffer({
       key: "tasks/" + this.state.version,
-      encrypt: true,
       success: function(data){
         this.setState({tasks: data.tasks});
         this.setState({query: data.tasks});
@@ -19,7 +18,6 @@ class Tasks extends React.Component {
   componentDidMount() {
     ajaxArrayBuffer({
       key: "tasks/version",
-      encrypt: true,
       success: function(data){
         this.setState({version: data.version});
         this.loadTasks();
@@ -29,7 +27,6 @@ class Tasks extends React.Component {
 
   handleChange(e) {
     var keyword = e.target.value;
-    // console.log("Query");
     var query = [];
     var s = new RegExp(keyword, "i");
     for (let x of this.state.tasks) {
@@ -73,13 +70,11 @@ class Tasks extends React.Component {
       upload({
         key: "tasks/" + version, //备份部分版本
         data: strToUTF8Arr(JSON.stringify({tasks: tasks})),
-        encrypt: true,
         success: function() {
 
           upload({
             key: "tasks/version",
             data: strToUTF8Arr(JSON.stringify({version: version})),
-            encrypt: true,
             success: function() {
               this.setState({version: version});
               this.setState({query: tasks});
@@ -105,17 +100,24 @@ class Tasks extends React.Component {
         </form>
 
         {tasks.map(function(x){
-          return (
-            <div className="tasks-margin">
-              <span className="tasks">
-                {x.content}&nbsp;
-                <a href="#/tasks" onClick={this.handleEdit.bind(this, x)}>
-                  <i className="fa fa-pencil"></i>
-                </a>
-              </span>
-            </div>
-          );
+          return <Task key={x.id} data={x} edit={this.handleEdit.bind(this, x)} />;
         }.bind(this))}
+      </div>
+    );
+  }
+}
+
+class Task extends React.Component {
+  render(){
+    var x = this.props.data;
+    return (
+      <div className="tasks-margin">
+        <span className="tasks">
+          {x.content}&nbsp;
+          <a href="#/tasks" onClick={this.props.edit}>
+            <i className="fa fa-pencil"></i>
+          </a>
+        </span>
       </div>
     );
   }

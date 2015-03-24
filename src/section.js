@@ -8,7 +8,7 @@ class Section extends React.Component {
   loadIMG(data){
     ajaxArrayBuffer({
       key: data.dataset.key,
-      encrypt: false,
+      open,
       uint8Arr: true,
       success: function(rep){
 
@@ -17,6 +17,9 @@ class Section extends React.Component {
 
         let img = document.createElement("img");
         img.src = objecturl;
+
+        img.dataset.key = data.dataset.key;
+        img.ondragstart = dragStart;
 
         data.replaceChild(img, data.firstElementChild);
         data.setAttribute("name", "dec-img");
@@ -97,24 +100,31 @@ class Section extends React.Component {
     return (
       <div>
       {this.state.section.map(function(x){
-        var button = <div></div>;
-        if(this.props.auth){
-          button = <a className="label label-default" href={"#/e/" + x.id}>编辑</a>;
-        }
-        var converter = new Showdown.converter();
-        var rawMarkup = converter.makeHtml(x.content);
-
-        return (
-          <div>
-            <div className="container-fluid">
-              <h2>{x.title}</h2>
-              <span dangerouslySetInnerHTML={{__html: rawMarkup}} />
-              {button}
-            </div>
-            <hr />
-          </div>
-        );
+        return <Fragment key={x.id} data={x} auth={this.props.auth} />;
       }.bind(this))}
+      </div>
+    );
+  }
+}
+
+class Fragment extends React.Component {
+  render() {
+    var x = this.props.data;
+    var button = <div></div>;
+    if(this.props.auth){
+      button = <a className="label label-default" href={"#/e/" + x.id}>编辑</a>;
+    }
+    var converter = new Showdown.converter();
+    var rawMarkup = converter.makeHtml(x.content);
+
+    return (
+      <div>
+        <div className="container-fluid">
+          <h2>{x.title}</h2>
+          <span dangerouslySetInnerHTML={{__html: rawMarkup}} />
+          {button}
+        </div>
+        <hr />
       </div>
     );
   }

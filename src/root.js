@@ -2,14 +2,14 @@ class Root extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = {version: 0, contents: [], set: [], auth: false, url: location.hash};
+    this.state = {version: 0, contents: [], set: [], auth: false, url: location.hash, erase: false};
   }
 
   // load and cache
   loadSetFromServer(){
     ajaxArrayBuffer({
       key: "set/" + this.state.version,
-      encrypt: false,
+      open,
       success: function(data){
 
         var contents = [];
@@ -56,7 +56,7 @@ class Root extends React.Component {
   cache(){
     ajaxArrayBuffer({
       key: "version",
-      encrypt: false,
+      open,
       success: function(data){
         this.setState({version: data.version});
 
@@ -120,13 +120,13 @@ class Root extends React.Component {
       upload({
         key: "set/" + version,
         data: strToUTF8Arr(JSON.stringify({set: set})),
-        encrypt: false,
+        open,
         success: function() {
 
           upload({
             key: "version",
             data: strToUTF8Arr(JSON.stringify({version: version})),
-            encrypt: false,
+            open,
             success: function() {
               console.log("Save!!!");
               location.href="#/t/"+ t.id;
@@ -138,9 +138,29 @@ class Root extends React.Component {
     }
   }
 
+  handleErase(key) {
+    upload({
+      key,
+      data: strToUTF8Arr('x'),
+      success: function() {
+        console.log("Erase!!!");
+        this.setState({erase: true});
+        this.setState({erase: true});
+        // this.setState({erase: true});
+        // this.setState({erase: true});
+      }.bind(this)
+    });
+  }
+
+  handleEraseEnd() {
+    this.setState({erase: false});
+  }
+
   handleLogin() {
     this.setState({auth: true});
-    // this.cache(); // when encrypt all
+    if (!open) {
+      this.cache();
+    }
     location.href=local;
   }
 
@@ -148,25 +168,32 @@ class Root extends React.Component {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     this.setState({auth: false});
-    // db.delete(); // when encrypt all
-    // this.setState({version: 0});
-    // this.setState({contents: []});
-    // this.setState({set: []});
-    location.replace("#/");
+    if (!open) {
+      db.delete();
+      this.setState({version: 0});
+      this.setState({contents: []});
+      this.setState({set: []});
+      location.replace("#/login");
+    } else {
+      location.replace("#/");
+    }
   }
 
   auth() {
     if (localStorage.token) {
       this.setState({auth: true});
-      // this.cache(); // when encrypt all
-    // } else {
-    //   location.href="#/login";
+      this.cache();
+    } else {
+      if (!open) {
+        location.href="#/login";
+      } else {
+        this.cache();
+      }
     }
   }
 
   componentDidMount() {
     this.auth();
-    this.cache();
     window.onhashchange = () => this.setState({ url : location.hash });
   }
 
@@ -175,65 +202,35 @@ class Root extends React.Component {
     switch (this.state.url.split('/')[1]) {
       case 't':
       case 's':
-        page = (
-          <div>
-            <Navbar auth={this.state.auth} logout={this.handleLogout.bind(this)} />
-            <Section {...this.state} />
-          </div>
-        );
+        page = <Section {...this.state} />;
         break;
       case 'a':
       case 'e':
-        page = (
-          <div>
-            <Navbar auth={this.state.auth} logout={this.handleLogout.bind(this)} />
-            <Editor {...this.state} uploadSetToServer={this.handleUploadSetToServer.bind(this)} />
-          </div>
-        );
+        page = <Editor {...this.state} uploadSetToServer={this.handleUploadSetToServer.bind(this)} />;
         break;
       case 'login':
-        page = (
-          <div>
-            <Navbar auth={this.state.auth} logout={this.handleLogout.bind(this)} />
-            <SignIn {...this.state} login={this.handleLogin.bind(this)} />
-          </div>
-        );
+        page = <SignIn {...this.state} login={this.handleLogin.bind(this)} />;
         break;
       case 'join':
-        page = (
-          <div>
-            <Navbar auth={this.state.auth} logout={this.handleLogout.bind(this)} />
-            <SignUp {...this.state} />
-          </div>
-        );
+        page = <SignUp {...this.state} />;
         break;
       case 'folder':
-        page = (
-          <div>
-            <Navbar auth={this.state.auth} logout={this.handleLogout.bind(this)} />
-            <Folder {...this.state} />
-          </div>
-        );
+        page = <Folder {...this.state} eraseEnd={this.handleEraseEnd.bind(this)} />;
         break;
       case 'tasks':
-        page = (
-          <div>
-            <Navbar auth={this.state.auth} logout={this.handleLogout.bind(this)} />
-            <Tasks {...this.state} />
-          </div>
-        );
+        page = <Tasks {...this.state} />;
         break;
       default:
-        page = (
-          <div>
-            <Navbar auth={this.state.auth} logout={this.handleLogout.bind(this)} />
-            <Contents {...this.state} />
-          </div>
-        );
+        page = <Contents {...this.state} />;
         break;
     }
 
-    return <div>{page}</div>;
+    return (
+      <div>
+        <Navbar auth={this.state.auth} logout={this.handleLogout.bind(this)} erase={this.handleErase.bind(this)} />
+        {page}
+      </div>
+      );
   }
 }
 

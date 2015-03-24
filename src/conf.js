@@ -15,12 +15,6 @@
 // ! 用 for(var i = 0; i < a.length; i++) 取代 for(var i in a)
 //
 
-//
-// Docouments
-// JavaScript: http://javascript.ruanyifeng.com/
-// asmCrypto: https://github.com/vibornoff/asmcrypto.js#aes_cbc
-//
-
 
 //
 // Global Variable
@@ -28,6 +22,7 @@
 const siteTitle = 'Structure';
 const bucket = 'structure';
 const publicKey = 'GmPw2qjmTsAAUsqa'; // 存储前加密密钥
+const open = true;
 
 const url = 'http://' + bucket + '.oss-cn-beijing.aliyuncs.com/';
 // const url = 'http://' + bucket + '.kssws.ks-cdn.com/';
@@ -69,13 +64,13 @@ function ajaxArrayBuffer(opts) {
     if (xhr.readyState === 4) {
       if (xhr.status >= 200 && xhr.status < 300 || xhr.status === 304) {
 
-        let token = opts.token ? opts.token : (opts.encrypt ? localStorage.token : publicKey);
+        let token = opts.token ? opts.token : (opts.open ? publicKey : localStorage.token);
         let uint8Arr = asmCrypto.AES_CBC.decrypt(xhr.response, token);
         console.log("AES.decrypt");
         if (opts.uint8Arr) {
           opts.success(uint8Arr);
         } else {
-          let str = UTF8ArrToStr(uint8Arr);
+          let str = utf8ArrToStr(uint8Arr);
           opts.success(JSON.parse(str));
         }
       }
@@ -103,8 +98,9 @@ function ajaxArrayBuffer(opts) {
 }
 
 function upload(opts) {
+  "use strict";
 
-  var token = opts.token ? opts.token : (opts.encrypt ? localStorage.token : publicKey);
+  var token = opts.token ? opts.token : (opts.open ? publicKey : localStorage.token);
   // opts.data can be ArrayBuffer or Uint8Array. strings will garbled characters.
   var uint8Arr = asmCrypto.AES_CBC.encrypt(opts.data, token);
   console.log("AES.encrypt");
@@ -185,7 +181,7 @@ function customForm(opts, blob) {
 //   base64 = base64.replace(/\+/g, "-");
 //   base64 = base64.replace(/\//g, "_");
 //   return base64;
-// };
+// }
 
 function insertText(obj, str) {
   if (document.selection) {
@@ -231,14 +227,14 @@ function fileTypeIcons(type) {
   }
 }
 
-function nDown(name, type, key, encrypt) {
+function nDown(name, type, key, open) {
   var progress = document.getElementById(key);
 
   ajaxArrayBuffer({
-    key: key,
-    encrypt: encrypt,
+    key,
+    open,
     uint8Arr: true,
-    progress: progress,
+    progress,
     success: function(data) {
       var blob = new Blob([data.buffer], {
         "type": type
@@ -248,7 +244,8 @@ function nDown(name, type, key, encrypt) {
       // 生成下载
       var anchor = document.createElement("a");
       anchor.href = objecturl;
-      anchor.download = name;
+      // anchor.target = '_blank'; // 新标签页打开
+      anchor.download = name; // 直接下载
       document.body.appendChild(anchor);
       var evt = document.createEvent("MouseEvents");
       evt.initEvent("click", true, true);
@@ -258,6 +255,10 @@ function nDown(name, type, key, encrypt) {
       progress.value = 0;
     }
   });
+}
+
+function dragStart(e) {
+  e.dataTransfer.setData('key', e.target.dataset.key);
 }
 
 function timeDiff() {
@@ -279,7 +280,7 @@ function timeDiff() {
 
 /* UTF-8 array to DOMString and vice versa */
 
-function UTF8ArrToStr(aBytes) {
+function utf8ArrToStr(aBytes) {
 
   var sView = "";
 
