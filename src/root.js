@@ -234,4 +234,4 @@ class Root extends React.Component {
   }
 }
 
-React.render(<Root />, document.body);
+React.render(<Root />, document.getElementById('wrapper'));

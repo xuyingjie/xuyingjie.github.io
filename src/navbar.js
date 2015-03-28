@@ -51,7 +51,7 @@ class Navbar extends React.Component {
             <span className="fa fa-folder" aria-hidden="true"></span>
           </a>
           <div className="navbar-brand" onDragOver={this.preventDefault} onDrop={this.drop.bind(this)}>
-            <span className="fa fa-trash" aria-hidden="true"></span>
+            <span className="fa fa-trash-o" aria-hidden="true"></span>
           </div>
           <span className="navbar-brand"></span>
           <a className="navbar-brand" href onClick={this.handleLogoutClick.bind(this)}>

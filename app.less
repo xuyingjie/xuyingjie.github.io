@@ -1,0 +1,142 @@
+
+@san-en: Open Sans, Helvetica;
+@san-fonts: @san-en, FZYouHeiS-R-GB, FZLanTingHei-R-GBK, sans-serif;
+@blockquote-fonts: @san-en, FZJunHeiS-M-GB, FZYouHeiS-R-GB, sans-serif;
+@code-fonts: DejaVu Sans Mono, Source Code Pro, Consolas, monospace, FZYouHeiS-R-GB;
+
+@font-color: #111;
+@base-size: 16px;
+@bg-color: #fdfdfd;
+@fg-color: #ffffff;
+
+
+/** Reset some basic elements */
+body, h1, h2, h3, h4, h5, h6, p, blockquote, pre, dl, dd, ol, ul, figure { margin: 0; padding: 0; }
+
+/** Basic styling */
+body {
+  font-family: @san-fonts;
+  font-size: @base-size;
+  line-height: 1.5;
+  font-weight: normal;
+  color: @font-color;
+  background-color: @bg-color;
+  padding-top: 76px;
+}
+
+/** Set `margin-bottom` to maintain vertycal rhythm */
+h1, h2, h3, h4, h5, h6, p, blockquote, pre, ul, ol, dl { margin-bottom: 15px; }
+
+/** Images */
+img {
+  max-width: 100%;
+}
+
+/** Lists */
+ul, ol { margin-left: 30px; }
+li > ul, li > ol { margin-bottom: 0; }
+ul.list-group { margin-left: 0; }
+
+/** Headings */
+h1, h2, h3, h4, h5, h6 { font-weight: 300; }
+
+/** Links */
+a:hover { color: @font-color; text-decoration: underline; }
+
+/** Blockquotes */
+blockquote {
+  font-family: @blockquote-fonts;
+  color: #828282; border-left: 4px solid #e8e8e8; padding-left: 15px; font-size: @base-size + 1; letter-spacing: -0.5px; font-style: italic; }
+blockquote > :last-child { margin-bottom: 0; }
+
+/** Code formatting */
+pre, code {
+  font-family: @code-fonts;
+  font-size: @base-size - 1;
+  border: 1px solid #e8e8e8;
+  border-radius: 3px;
+  background-color: #eef;
+  color: @font-color;
+}
+code { padding: 1px 5px; }
+pre { padding: 8px 12px; overflow-x: auto; }
+pre > code { border: 0; padding-right: 0; padding-left: 0; }
+
+textarea.form-control {
+  font-family: @code-fonts;
+  font-size: @base-size;
+}
+
+
+/***  取消响应式导航  ***/
+.navbar-default {
+  background-color: @fg-color;
+  border-top: 5px solid #424242;
+  border-bottom: 1px solid #e8e8e8;
+  border-left: 0px;
+  border-right: 0px;
+  border-radius: 0px;
+}
+.navbar-header {
+  float: left;
+}
+.navbar-left {
+  float: left !important;
+}
+.navbar-right {
+  float: right !important;
+  margin-right: -15px;
+}
+.navbar-brand {
+  margin-left: -15px;
+}
+
+
+/***  定制form  ***/
+.form-control, .form-control:focus {
+  background-color: @bg-color;
+  color: @font-color;
+  border-width: 0 0 2px;
+  border-color: #BABABA;
+  border-radius: 0px;
+  box-shadow: none;
+  padding-left: 2px;
+}
+.mainput, .mainput:focus {
+  background-color: @fg-color;
+  width: 160px !important;
+  height: 21px;
+  padding: 0px;
+}
+.navbar-form {
+  margin: 0;
+  padding: 13px 0;
+  border: 0;
+  box-shadow: none;
+}
+
+input[type="file"] {
+  display: inline-block;
+}
+
+.btn {
+  font-size: @base-size - 1;
+}
+
+
+.custom-title {
+  font-weight: bold;
+}
+
+.tasks, .tasks:focus {
+  font-family: @code-fonts;
+  font-size: @base-size;
+  background-color: @fg-color;
+  border-width: 1px 0;
+  border-style: solid;
+  border-color: #dfdfdf;
+  padding: 0.125rem 0.3125rem 0.0625rem;
+}
+.tasks-margin {
+  margin-bottom: 1px;
+}

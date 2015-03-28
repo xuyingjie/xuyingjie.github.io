@@ -60,8 +60,7 @@ class Editor extends React.Component {
 `;
           } else {
             c = `
-<a class="btn btn-default" data-key="${key}" draggable="true" ondragstart="dragStart(event)" onclick="nDown('${file.name}','${file.type}','${key}',${open})">
-<i class="${fileTypeIcons(file.type)} fa-lg"></i>&nbsp;${file.name}&nbsp;<span id="${key}">${(file.size/1024).toFixed(2)}KB</span></a>
+<a class="btn btn-default" data-key="${key}" draggable="true" ondragstart="dragStart(event)" onclick="nDown('${file.name}','${file.type}','${key}',${open})"><i class="${fileTypeIcons(file.type)} fa-lg"></i>&nbsp;${file.name}&nbsp;<span id="${key}">${(file.size/1024).toFixed(2)}KB</span></a>
 `;
           }
 
