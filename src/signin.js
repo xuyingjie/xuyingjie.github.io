@@ -36,7 +36,7 @@ class SignIn extends React.Component {
                 <label htmlFor="inputPassword3">Password</label>
                 <input type="password" className="form-control" id="inputPassword3" ref="passwd"/>
               </div>
-              <button type="submit" className="btn btn-default">Sign in</button>
+              <button type="submit" className="btn">Sign in</button>
             </form>
 
           </div>

@@ -29,7 +29,7 @@ class Section extends React.Component {
 
   imgEvent() {
     var encIMG = document.getElementsByName("enc-img");
-
+console.log("a");
     for (let i = 0; i < encIMG.length; i++){
       let top = encIMG[i].getBoundingClientRect().top;
       if ( top > 0 && top < window.innerHeight){

@@ -60,7 +60,7 @@ class Editor extends React.Component {
 `;
           } else {
             c = `
-<a class="btn btn-default" data-key="${key}" draggable="true" ondragstart="dragStart(event)" onclick="nDown('${file.name}','${file.type}','${key}',${open})"><i class="${fileTypeIcons(file.type)} fa-lg"></i>&nbsp;${file.name}&nbsp;<span id="${key}">${(file.size/1024).toFixed(2)}KB</span></a>
+<a class="btn" data-key="${key}" draggable="true" ondragstart="dragStart(event)" onclick="nDown('${file.name}','${file.type}','${key}',${open})"><i class="${fileTypeIcons(file.type)} fa-lg"></i>&nbsp;${file.name}&nbsp;<span id="${key}">${(file.size/1024).toFixed(2)}KB</span></a>
 `;
           }
 
@@ -106,12 +106,12 @@ class Editor extends React.Component {
           <div className="form-group">
             <textarea id="content" className="form-control" rows="17" placeholder="value" onChange={this.handleContentChange.bind(this)} value={x.content} />
           </div>
-          <button type="submit" className="btn btn-default pull-right">Save</button>
+          <button type="submit" className="btn pull-right">Save</button>
         </form>
 
         <form encType="multipart/form-data" onSubmit={this.uploadFile.bind(this)}>
-          <input id="file" type="file" required accept multiple />
-          <button type="submit" className="btn btn-default">Insert</button>
+          <input id="file" type="file" className="btn" required accept multiple />
+          <button type="submit" className="btn">Insert</button>
         </form>
         <progress id="upload-progress" min="0" max="100" value="0">0</progress>
 

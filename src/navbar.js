@@ -70,7 +70,7 @@ class Navbar extends React.Component {
     }
 
     return (
-      <nav className="navbar navbar-default navbar-fixed-top">
+      <nav className="navbar navbar-default">
         <div className="container-fluid">
           <a className="navbar-brand custom-title" href onClick={this.handleIndexClick.bind(this)}>{siteTitle}</a>
           <form className="navbar-form navbar-left" role="search" onSubmit={this.handleMainputChange.bind(this)}>

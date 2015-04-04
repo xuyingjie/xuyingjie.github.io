@@ -158,42 +158,29 @@ class Root extends React.Component {
 
   handleLogin() {
     this.setState({auth: true});
-    if (!open) {
-      this.cache();
+    if (local === "#/login") {
+      location.href="#/";
+    } else {
+      location.href=local;
     }
-    location.href=local;
   }
 
   handleLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     this.setState({auth: false});
-    if (!open) {
-      db.delete();
-      this.setState({version: 0});
-      this.setState({contents: []});
-      this.setState({set: []});
-      location.replace("#/login");
-    } else {
-      location.replace("#/");
-    }
+    location.replace("#/");
   }
 
   auth() {
     if (localStorage.token) {
       this.setState({auth: true});
-      this.cache();
-    } else {
-      if (!open) {
-        location.href="#/login";
-      } else {
-        this.cache();
-      }
     }
   }
 
   componentDidMount() {
     this.auth();
+    this.cache();
     window.onhashchange = () => this.setState({ url : location.hash });
   }
 

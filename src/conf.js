@@ -5,7 +5,6 @@
 // - 文件整体加密，云端存储格式(new Blob([ArrayBuffer]))
 // - scrollLoad with decrypt
 // - 多种文件格式的显示
-// ? 版本回溯
 // - js文件合并压缩
 // - "#/tasks": 加密,修改时间排序
 // - "#/folder": asmcrypto.js 加密 {name:, path:}
@@ -20,13 +19,9 @@
 // Global Variable
 //
 const siteTitle = 'Structure';
-const bucket = 'structure';
+const bucket = 'proc';
 const publicKey = 'GmPw2qjmTsAAUsqa'; // 存储前加密密钥
 const open = true;
-
-const url = 'http://' + bucket + '.oss-cn-beijing.aliyuncs.com/';
-// const url = 'http://' + bucket + '.kssws.ks-cdn.com/';
-// const url = 'http://7teaz4.com1.z0.glb.clouddn.com/'; // POST: 'http://upload.qiniu.com'
 
 // or define in this.state
 var local = '#/'; // 返回登录前页面
@@ -88,11 +83,11 @@ function ajaxArrayBuffer(opts) {
     };
   }
 
-  // if (opts.key.match("version") !== null || opts.key === "folder/list") {
-  //   opts.key += "?v=" + Date.now();
-  // }
+  if (opts.key.match("version") !== null || opts.key === "folder/list") {
+    opts.key += "?v=" + Date.now();
+  }
 
-  xhr.open("GET", url + opts.key, true);
+  xhr.open('GET', 'http://7teaz4.com1.z0.glb.clouddn.com/' + opts.key, true);
   xhr.responseType = "arraybuffer"; // in firefox xhr.responseType must behind xhr.open
   xhr.send(null);
 }
@@ -129,7 +124,7 @@ function upload(opts) {
     }
   };
 
-  xhr.open("POST", url, true);
+  xhr.open('POST', 'http://upload.qiniu.com', true);
   xhr.send(formData);
 }
 
@@ -139,37 +134,14 @@ function customForm(opts, blob) {
   var SK = user.SK;
 
   var policyJson = {
-    "expiration": (new Date(Date.now() + 3600000)).toJSON(),
-    "conditions": [
-      // {
-      //   "acl": "public-read"  // kss
-      // },
-      {
-        "bucket": bucket
-      },
-      ["eq", "$key", opts.key]
-    ]
+    "scope": bucket + ":" + opts.key,
+    "deadline": 3600 + Math.floor(Date.now() / 1000)
   };
-  // var policyJson = { // qn
-  //   "scope": bucket + ":" + opts.key,
-  //   "deadline": 3600 + Math.floor(Date.now() / 1000)
-  // };
   var policy = btoa(JSON.stringify(policyJson));
   var signature = asmCrypto.HMAC_SHA1.base64(policy, SK);
 
   var formData = new FormData();
-  // formData.append('token', AK + ':' + safe64(signature) + ':' + policy); // qn
-  // formData.append('acl', "public-read"); // kss
-  // formData.append('KSSAccessKeyId', AK); // kss
-  formData.append('OSSAccessKeyId', AK); // oss
-  formData.append('policy', policy);
-  formData.append('signature', signature);
-
-  if (opts.key.match("version") !== null || opts.key === "folder/list") { // oss
-    formData.append('Cache-Control', 'no-cache');
-  } else {
-    formData.append('Cache-Control', 'public,max-age=8640000');
-  }
+  formData.append('token', AK + ':' + safe64(signature) + ':' + policy);
 
   formData.append('key', opts.key);
   formData.append('file', blob); // 文件或文本内容，必须是表单中的最后一个域。
@@ -177,11 +149,11 @@ function customForm(opts, blob) {
   return formData;
 }
 
-// function safe64(base64) { // qn
-//   base64 = base64.replace(/\+/g, "-");
-//   base64 = base64.replace(/\//g, "_");
-//   return base64;
-// }
+function safe64(base64) { // qn
+  base64 = base64.replace(/\+/g, "-");
+  base64 = base64.replace(/\//g, "_");
+  return base64;
+}
 
 function insertText(obj, str) {
   if (document.selection) {

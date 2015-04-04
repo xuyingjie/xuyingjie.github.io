@@ -53,7 +53,7 @@ class SignUp extends React.Component {
                 <label htmlFor="SK">SK</label>
                 <input type="text" className="form-control" id="SK" ref="SK"/>
               </div>
-              <button type="submit" className="btn btn-default">Sign up</button>
+              <button type="submit" className="btn">Sign up</button>
             </form>
 
           </div>

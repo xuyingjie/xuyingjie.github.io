@@ -95,7 +95,7 @@ class Tasks extends React.Component {
       <div className="container-fluid">
         <form onSubmit={this.save.bind(this)}>
           <div className="form-group">
-            <input type="text" className="form-control tasks" placeholder="tasks" onChange={this.handleChange.bind(this)} ref="content" />
+            <input type="text" className="form-control" placeholder="tasks" onChange={this.handleChange.bind(this)} ref="content" />
           </div>
         </form>
 
@@ -111,7 +111,7 @@ class Task extends React.Component {
   render(){
     var x = this.props.data;
     return (
-      <div className="tasks-margin">
+      <div>
         <span className="tasks">
           {x.content}&nbsp;
           <a href="#/tasks" onClick={this.props.edit}>
