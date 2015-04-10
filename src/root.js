@@ -8,7 +8,7 @@ class Root extends React.Component {
   // load and cache
   loadSetFromServer(){
     ajaxArrayBuffer({
-      key: "set/" + this.state.version,
+      key: 'set/' + this.state.version,
       open,
       success: function(data){
 
@@ -33,9 +33,9 @@ class Root extends React.Component {
 
   cacheToIndexedDB(){
     var v = this.state.version;
-    db.etc.put({"id": "version", "version": v});
-    db.contents.put({"id": v, "arr": this.state.contents});
-    db.set.put({"id": v, "arr": this.state.set});
+    db.etc.put({'id': 'version', 'version': v});
+    db.contents.put({'id': v, 'arr': this.state.contents});
+    db.set.put({'id': v, 'arr': this.state.set});
     for (let x of this.state.set) {
       db.section.put(x).then(function(){
         refresh = true;
@@ -55,22 +55,22 @@ class Root extends React.Component {
 
   cache(){
     ajaxArrayBuffer({
-      key: "version",
+      key: 'version',
       open,
       success: function(data){
         this.setState({version: data.version});
 
-        db.etc.get("version", function(data){
+        db.etc.get('version', function(data){
           if (data) {
             if (data.version === this.state.version){
-              console.log("LoadSetFromIndexedDB");
+              console.log('LoadSetFromIndexedDB');
               this.loadSetFromIndexedDB();
             } else {
-              console.log("LoadSetFromServer");
+              console.log('LoadSetFromServer');
               this.loadSetFromServer();
             }
           } else {
-            console.log("LoadSetFromServer");
+            console.log('LoadSetFromServer');
             this.loadSetFromServer();
           }
         }.bind(this));
@@ -113,23 +113,23 @@ class Root extends React.Component {
       this.setState({set: set});
 
       db.section.put(t);
-      db.etc.put({"id": "version", "version": version});
-      db.contents.put({"id": version, "arr": contents});
-      db.set.put({"id": version, "arr": set});
+      db.etc.put({'id': 'version', 'version': version});
+      db.contents.put({'id': version, 'arr': contents});
+      db.set.put({'id': version, 'arr': set});
 
       upload({
-        key: "set/" + version,
+        key: 'set/' + version,
         data: strToUTF8Arr(JSON.stringify({set: set})),
         open,
         success: function() {
 
           upload({
-            key: "version",
+            key: 'version',
             data: strToUTF8Arr(JSON.stringify({version: version})),
             open,
             success: function() {
-              console.log("Save!!!");
-              location.href="#/t/"+ t.id;
+              console.log('Save!!!');
+              location.href='#/t/'+ t.id;
             }
           });
         }
@@ -143,7 +143,7 @@ class Root extends React.Component {
       key,
       data: strToUTF8Arr('x'),
       success: function() {
-        console.log("Erase!!!");
+        console.log('Erase!!!');
         this.setState({erase: true});
         this.setState({erase: true});
         // this.setState({erase: true});
@@ -158,18 +158,18 @@ class Root extends React.Component {
 
   handleLogin() {
     this.setState({auth: true});
-    if (local === "#/login") {
-      location.href="#/";
+    if (local === '#/login') {
+      location.href='#/';
     } else {
       location.href=local;
     }
   }
 
   handleLogout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user");
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
     this.setState({auth: false});
-    location.replace("#/");
+    location.replace('#/');
   }
 
   auth() {

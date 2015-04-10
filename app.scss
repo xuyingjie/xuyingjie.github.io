@@ -7,10 +7,10 @@ $code-fonts: DejaVu Sans Mono, Source Code Pro, Consolas, monospace, FZYouHeiS-R
 
 $base-size: 16px;
 $font-color: rgba(0, 0, 0, 0.87);
-$nav-color: rgba(255, 255, 255, 0.87);
+$font-color-o: rgba(255, 255, 255, 0.87);
 
 $bg-color: #FFFFFF;
-$fg-color: #00BCD4;
+$nav-color: #00BCD4;
 
 $main-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.26);
 
@@ -181,8 +181,8 @@ hr {
 
 /** Navbar */
 .nav-main {
-  background: $fg-color;
-  color: $nav-color;
+  background: $nav-color;
+  color: $font-color-o;
   position: fixed;
   top: 0px;
   height: $nav-h;
@@ -198,22 +198,22 @@ hr {
   float: left;
   height: $nav-h;
   font-size: 17px;
-  color: $nav-color;
+  color: $font-color-o;
 }
 
 a.nav-site:hover, a.nav-site:focus {
-  color: $nav-color;
+  color: $font-color-o;
   text-decoration: none;
 }
 
 .nav-title {
   color: rgba(255, 255, 255, 0.92);
   font-size: 20px;
-  margin-left: -10px;
+  margin-left: -8px;
 }
 
 .nav-right {
-  margin-right: -15px;
+  margin-right: -8px;
 }
 
 
@@ -243,10 +243,10 @@ textarea.form-control {
   font-size: $base-size;
 }
 .mainput, .mainput:focus {
-  background-color: $fg-color;
+  background-color: $nav-color;
   color: $font-color;
-  border-top: 1px solid $fg-color;
-  border-bottom: 1px solid $nav-color;
+  border-top: 1px solid $nav-color;
+  border-bottom: 1px solid $font-color-o;
   height: 20px;
   padding: 0px;
 }

@@ -12,24 +12,24 @@ class Section extends React.Component {
       uint8Arr: true,
       success: function(rep){
 
-        let blob = new Blob([rep.buffer], {"type": data.dataset.type});
+        let blob = new Blob([rep.buffer], {'type': data.dataset.type});
         let objecturl =  URL.createObjectURL(blob);
 
-        let img = document.createElement("img");
+        let img = document.createElement('img');
         img.src = objecturl;
 
         img.dataset.key = data.dataset.key;
         img.ondragstart = dragStart;
 
         data.replaceChild(img, data.firstElementChild);
-        data.setAttribute("name", "dec-img");
+        data.setAttribute('name', 'dec-img');
       }
     });
   }
 
   imgEvent() {
-    var encIMG = document.getElementsByName("enc-img");
-console.log("a");
+    var encIMG = document.getElementsByName('enc-img');
+console.log('a');
     for (let i = 0; i < encIMG.length; i++){
       let top = encIMG[i].getBoundingClientRect().top;
       if ( top > 0 && top < window.innerHeight){
@@ -51,26 +51,30 @@ console.log("a");
     }
 
     if (params.id !== ''){
-      // console.log("*****ID");
+      // console.log('*****ID');
       if (refresh){
-        console.log("Index");
+        console.log('Index');
         db.section.get(params.id, function(data){
           if (data) {
             this.setState({section: [data]});
             refresh = false;
             this.imgEvent();
-            window.onscroll = this.imgEvent.bind(this);  // 滚动加载图片
+
+            // 滚动加载图片
+            window.onscroll = this.imgEvent.bind(this);
           }
         }.bind(this));
       }
     } else if (params.keyword !== '') {
-      // console.log("*****Qu");
-      if(this.props.set.length !== 0){            // [] is ture!!!
+      // console.log('*****Qu');
+
+      // [] is ture!!!
+      if(this.props.set.length !== 0){
         var keyword = params.keyword;
         if (keyword !== this.state.keyword || refresh){
-          console.log("Query");
+          console.log('Query');
           var query = [];
-          var s = new RegExp(keyword, "i");
+          var s = new RegExp(keyword, 'i');
           for (let x of this.props.set) {
             if (x.title.match(s) !== null || x.content.match(s) !== null) {
               query.push(x);
@@ -89,7 +93,9 @@ console.log("a");
   componentDidMount() {
     refresh = true;
     this.query();
-    this.interval = setInterval(this.query.bind(this), 200);  // 脏检查,等待cache完成,检查keyword变化
+
+    // 脏检查,等待cache完成,检查keyword变化
+    this.interval = setInterval(this.query.bind(this), 200);
   }
 
   componentWillUnmount() {

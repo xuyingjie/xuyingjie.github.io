@@ -8,7 +8,7 @@ class Editor extends React.Component {
   tick() {
     let paramsID = location.hash.slice(4);
 
-    if (paramsID){
+    if (paramsID) {
       db.section.get(paramsID, function(data){
         if (data) {
           this.setState({section: data});
@@ -21,7 +21,9 @@ class Editor extends React.Component {
   }
 
   componentDidMount() {
-    this.interval = setInterval(this.tick.bind(this), 5);  // 等待cache完成
+
+    // 等待cache完成
+    this.interval = setInterval(this.tick.bind(this), 5);
   }
 
   componentWillUnmount() {
@@ -33,6 +35,7 @@ class Editor extends React.Component {
     x.title = event.target.value;
     this.setState({section: x});
   }
+
   handleContentChange(event) {
     var x = this.state.section;
     x.content = event.target.value;
@@ -43,7 +46,7 @@ class Editor extends React.Component {
     var reader = new FileReader();
     reader.onload = function(e) {
 
-      var key = "u/" + timeDiff();
+      var key = 'u/' + timeDiff();
       var progress = document.getElementById('upload-progress');
 
       upload({
@@ -54,7 +57,7 @@ class Editor extends React.Component {
         success: function() {
           var c = '';
 
-          if (file.type === "image/png" || file.type === "image/jpeg" || file.type === "image/vnd.microsoft.icon"){
+          if (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'image/vnd.microsoft.icon'){
             c = `
 <span name="enc-img" data-name="${file.name}" data-type="${file.type}" data-key="${key}"><i class="fa fa-spinner fa-pulse fa-2x"></i></span>
 `;
@@ -71,7 +74,7 @@ class Editor extends React.Component {
           section.content = textarea.value;
           this.setState({section: section});
 
-          document.getElementById("file").value = "";
+          document.getElementById('file').value = '';
           progress.value = 0;
         }.bind(this)
       });
@@ -80,8 +83,10 @@ class Editor extends React.Component {
     reader.readAsArrayBuffer(file);
   }
 
-  uploadFile(e){
-    e.preventDefault();    // 阻止默认行为的发生。如跳转。
+  uploadFile(e) {
+
+    // 阻止默认行为的发生。如跳转。
+    e.preventDefault();
 
     var files = document.getElementById('file').files;
     for (let i = 0; i < files.length; i++) {
@@ -89,7 +94,7 @@ class Editor extends React.Component {
     }
   }
 
-  uploadSetToServer(e){
+  uploadSetToServer(e) {
     e.preventDefault();
     this.props.uploadSetToServer(this.state.section);
   }

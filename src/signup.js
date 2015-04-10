@@ -19,8 +19,8 @@ class SignUp extends React.Component {
       data: strToUTF8Arr(JSON.stringify({user: user})),
       token: passwd,
       success: function() {
-        console.log("Success!");
-        this.refs.status.getDOMNode().value = "Success!";
+        console.log('Success!');
+        this.refs.status.getDOMNode().value = 'Success!';
       }.bind(this)
     });
 

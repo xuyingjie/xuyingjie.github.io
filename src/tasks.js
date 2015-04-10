@@ -7,7 +7,7 @@ class Tasks extends React.Component {
 
   loadTasks() {
     ajaxArrayBuffer({
-      key: "tasks/" + this.state.version,
+      key: 'tasks/' + this.state.version,
       success: function(data){
         this.setState({tasks: data.tasks});
         this.setState({query: data.tasks});
@@ -17,7 +17,7 @@ class Tasks extends React.Component {
 
   componentDidMount() {
     ajaxArrayBuffer({
-      key: "tasks/version",
+      key: 'tasks/version',
       success: function(data){
         this.setState({version: data.version});
         this.loadTasks();
@@ -28,7 +28,7 @@ class Tasks extends React.Component {
   handleChange(e) {
     var keyword = e.target.value;
     var query = [];
-    var s = new RegExp(keyword, "i");
+    var s = new RegExp(keyword, 'i');
     for (let x of this.state.tasks) {
       if (x.content.match(s) !== null) {
         query.push(x);
@@ -55,7 +55,7 @@ class Tasks extends React.Component {
             tasks.splice(i,1);
             this.setState({editID: ''});
           }
-          // console.log("editID: "+this.state.editID);
+          // console.log('editID: '+this.state.editID);
         }
       }
 
@@ -68,17 +68,17 @@ class Tasks extends React.Component {
       // this.setState({tasks: tasks});
 
       upload({
-        key: "tasks/" + version, //备份部分版本
+        key: 'tasks/' + version,
         data: strToUTF8Arr(JSON.stringify({tasks: tasks})),
         success: function() {
 
           upload({
-            key: "tasks/version",
+            key: 'tasks/version',
             data: strToUTF8Arr(JSON.stringify({version: version})),
             success: function() {
               this.setState({version: version});
               this.setState({query: tasks});
-              this.refs.content.getDOMNode().value = "";
+              this.refs.content.getDOMNode().value = '';
             }.bind(this)
           });
 

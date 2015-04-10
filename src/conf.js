@@ -1,36 +1,38 @@
-//
-// - 存储为单文件（方便缓存、搜索）
-// - 存储文章和上传文件一样post
-// - 标题排序（字母排序，修改时间排序）
-// - 文件整体加密，云端存储格式(new Blob([ArrayBuffer]))
-// - scrollLoad with decrypt
-// - 多种文件格式的显示
-// - js文件合并压缩
-// - "#/tasks": 加密,修改时间排序
-// - "#/folder": asmcrypto.js 加密 {name:, path:}
-//
-// - es6
-// ! simplify function names
-// ! 用 for(var i = 0; i < a.length; i++) 取代 for(var i in a)
-//
+/**
+ * - 存储为单文件（方便缓存、搜索）
+ * - 存储文章和上传文件一样post
+ * - 标题排序（字母排序，修改时间排序）
+ * - 文件整体加密，云端存储格式(new Blob([ArrayBuffer]))
+ * - scrollLoad with decrypt
+ * - 多种文件格式的显示
+ * - js文件合并压缩
+ * - '#/tasks': 加密,修改时间排序
+ * - '#/folder': asmcrypto.js 加密 {name:, path:}
+ *
+ * - es6
+ * ! simplify function names
+ * ! 用 for(var i = 0; i < a.length; i++) 取代 for(var i in a)
+ */
 
 
-//
-// Global Variable
-//
 const siteTitle = 'Structure';
 const bucket = 'proc';
-const publicKey = 'GmPw2qjmTsAAUsqa'; // 存储前加密密钥
+
+// 存储前加密密钥
+const publicKey = 'GmPw2qjmTsAAUsqa';
+
 const open = true;
 
-// or define in this.state
-var local = '#/'; // 返回登录前页面
-var refresh = false; // 异步缓存时 传递刷新条件
+// 返回登录前页面
+var local = '#/';
+
+// 异步缓存时 传递刷新条件
+var refresh = false;
 
 
-//
-// indexedDB
-//
+/**
+ * indexedDB
+ */
 var db = new Dexie(bucket);
 db.version(1).stores({
   etc: 'id, version'
@@ -47,12 +49,12 @@ db.version(1).stores({
 db.open();
 
 
-//
-// ajax
-// or use Promise
-//
+/*
+ * ajax
+ * or use Promise
+ */
 function ajaxArrayBuffer(opts) {
-  "use strict";
+  'use strict';
   var xhr = new XMLHttpRequest();
 
   xhr.onload = function() {
@@ -61,7 +63,7 @@ function ajaxArrayBuffer(opts) {
 
         let token = opts.token ? opts.token : (opts.open ? publicKey : localStorage.token);
         let uint8Arr = asmCrypto.AES_CBC.decrypt(xhr.response, token);
-        console.log("AES.decrypt");
+        console.log('AES.decrypt');
         if (opts.uint8Arr) {
           opts.success(uint8Arr);
         } else {
@@ -75,30 +77,35 @@ function ajaxArrayBuffer(opts) {
     xhr.onprogress = function(e) {
       if (e.lengthComputable) {
         if (e.loaded === e.total) {
-          opts.progress.innerHTML = (e.total / 1024).toFixed(2) + "KB";
+          opts.progress.innerHTML = (e.total / 1024).toFixed(2) + 'KB';
         } else {
-          opts.progress.innerHTML = ((e.loaded / e.total) * 100).toFixed(2) + "%";
+          opts.progress.innerHTML = ((e.loaded / e.total) * 100).toFixed(2) + '%';
         }
       }
     };
   }
 
-  if (opts.key.match("version") !== null || opts.key === "folder/list") {
-    opts.key += "?v=" + Date.now();
+  if (opts.key.match('version') !== null || opts.key === 'folder/list') {
+    opts.key += '?v=' + Date.now();
   }
 
   xhr.open('GET', 'http://7teaz4.com1.z0.glb.clouddn.com/' + opts.key, true);
-  xhr.responseType = "arraybuffer"; // in firefox xhr.responseType must behind xhr.open
+
+  // in firefox xhr.responseType must behind xhr.open
+  xhr.responseType = 'arraybuffer';
+
   xhr.send(null);
 }
 
 function upload(opts) {
-  "use strict";
+  'use strict';
 
   var token = opts.token ? opts.token : (opts.open ? publicKey : localStorage.token);
+
   // opts.data can be ArrayBuffer or Uint8Array. strings will garbled characters.
   var uint8Arr = asmCrypto.AES_CBC.encrypt(opts.data, token);
-  console.log("AES.encrypt");
+  console.log('AES.encrypt');
+
   // new Blob([encList.buffer]) fast than new Blob([encList]) type不是必需的
   var blob = new Blob([uint8Arr.buffer], {
     type: 'application/octet-stream'
@@ -129,13 +136,15 @@ function upload(opts) {
 }
 
 function customForm(opts, blob) {
+  'use strict';
+
   var user = JSON.parse(localStorage.user);
   var AK = user.AK;
   var SK = user.SK;
 
   var policyJson = {
-    "scope": bucket + ":" + opts.key,
-    "deadline": 3600 + Math.floor(Date.now() / 1000)
+    'scope': bucket + ':' + opts.key,
+    'deadline': 3600 + Math.floor(Date.now() / 1000)
   };
   var policy = btoa(JSON.stringify(policyJson));
   var signature = asmCrypto.HMAC_SHA1.base64(policy, SK);
@@ -144,14 +153,16 @@ function customForm(opts, blob) {
   formData.append('token', AK + ':' + safe64(signature) + ':' + policy);
 
   formData.append('key', opts.key);
-  formData.append('file', blob); // 文件或文本内容，必须是表单中的最后一个域。
+
+  // 文件或文本内容，必须是表单中的最后一个域。
+  formData.append('file', blob);
 
   return formData;
 }
 
-function safe64(base64) { // qn
-  base64 = base64.replace(/\+/g, "-");
-  base64 = base64.replace(/\//g, "_");
+function safe64(base64) {
+  base64 = base64.replace(/\+/g, '-');
+  base64 = base64.replace(/\//g, '_');
   return base64;
 }
 
@@ -173,26 +184,26 @@ function insertText(obj, str) {
 }
 
 
-//
-// File Type Icons
-//
+/*
+ * File Type Icons
+ */
 function fileTypeIcons(type) {
   switch (type) {
-    case "image/png":
-    case "image/jpeg":
-    case "image/vnd.microsoft.icon":
+    case 'image/png':
+    case 'image/jpeg':
+    case 'image/vnd.microsoft.icon':
       return 'fa fa-file-image-o';
-    case "application/x-xz":
-    case "application/gzip":
-    case "application/zip":
+    case 'application/x-xz':
+    case 'application/gzip':
+    case 'application/zip':
       return 'fa fa-file-archive-o';
-    case "text/plain":
-    case "text/x-markdown":
+    case 'text/plain':
+    case 'text/x-markdown':
       return 'fa fa-file-text-o';
-    case "application/pdf":
+    case 'application/pdf':
       return 'fa fa-file-pdf-o';
-    case "application/msword":
-    case "application/vnd.oasis.opendocument.text":
+    case 'application/msword':
+    case 'application/vnd.oasis.opendocument.text':
       return 'fa fa-file-word-o';
     default:
       return 'fa fa-file-o';
@@ -209,18 +220,23 @@ function nDown(name, type, key, open) {
     progress,
     success: function(data) {
       var blob = new Blob([data.buffer], {
-        "type": type
+        'type': type
       });
       var objecturl = URL.createObjectURL(blob);
 
       // 生成下载
-      var anchor = document.createElement("a");
+      var anchor = document.createElement('a');
       anchor.href = objecturl;
-      // anchor.target = '_blank'; // 新标签页打开
-      anchor.download = name; // 直接下载
+
+      // 新标签页打开
+      // anchor.target = '_blank';
+
+      // 直接下载
+      anchor.download = name;
+
       document.body.appendChild(anchor);
-      var evt = document.createEvent("MouseEvents");
-      evt.initEvent("click", true, true);
+      var evt = document.createEvent('MouseEvents');
+      evt.initEvent('click', true, true);
       anchor.dispatchEvent(evt);
       document.body.removeChild(anchor);
 
@@ -244,17 +260,18 @@ function timeDiff() {
 |*|
 |*|  https://developer.mozilla.org/en-US/docs/Web/JavaScript/Base64_encoding_and_decoding
 |*|
+|*|
+|*| var Base64 = function(s){
+|*|   var utf8 = strToUTF8Arr(s);
+|*|   return base64EncArr(utf8);
+|*| };
 \*/
-// var Base64 = function(s){
-//   var utf8 = strToUTF8Arr(s);
-//   return base64EncArr(utf8);
-// };
 
 /* UTF-8 array to DOMString and vice versa */
 
 function utf8ArrToStr(aBytes) {
 
-  var sView = "";
+  var sView = '';
 
   for (var nPart, nLen = aBytes.length, nIdx = 0; nIdx < nLen; nIdx++) {
     nPart = aBytes[nIdx];
@@ -285,7 +302,7 @@ function strToUTF8Arr(sDOMStr) {
     nStrLen = sDOMStr.length,
     nArrLen = 0;
 
-  /* mapping... */
+    /* mapping... */
 
   for (var nMapIdx = 0; nMapIdx < nStrLen; nMapIdx++) {
     nChr = sDOMStr.charCodeAt(nMapIdx);

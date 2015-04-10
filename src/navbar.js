@@ -3,7 +3,7 @@ class Navbar extends React.Component {
   handleIndexClick(e) {
     e.preventDefault();
     this.refs.mainput.getDOMNode().value = '';
-    location.href="#/";
+    location.href='#/';
   }
   handleLogoutClick(e) {
     e.preventDefault();
@@ -12,15 +12,15 @@ class Navbar extends React.Component {
   handleLoginClick(e) {
     e.preventDefault();
     local = location.hash;
-    location.href="#/login";
+    location.href='#/login';
   }
   handleMainputChange(e) {
     e.preventDefault();
     var mainput = this.refs.mainput.getDOMNode().value;
     if (mainput.length > 1){
-      location.href="#/s/" + mainput;
+      location.href='#/s/' + mainput;
     } else if (mainput === '') {
-      location.href="#/";
+      location.href='#/';
     }
   }
 

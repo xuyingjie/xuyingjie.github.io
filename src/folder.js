@@ -7,7 +7,7 @@ class Folder extends React.Component {
 
   componentDidMount() {
     ajaxArrayBuffer({
-      key: "folder/list",
+      key: 'folder/list',
       success: function(data){
         this.setState({list: data.list});
       }.bind(this)
@@ -31,7 +31,7 @@ class Folder extends React.Component {
     var reader = new FileReader();
     reader.onload = function(e) {
 
-      var key = "folder/" + timeDiff();
+      var key = 'folder/' + timeDiff();
 
       upload({
         key,
@@ -59,13 +59,13 @@ class Folder extends React.Component {
 
   updateList(list) {
     upload({
-      key: "folder/list",
-      data: strToUTF8Arr(JSON.stringify({"list": list})),
+      key: 'folder/list',
+      data: strToUTF8Arr(JSON.stringify({'list': list})),
       success: function() {
-        console.log("Upload!!!");
+        console.log('Upload!!!');
 
         this.setState({list: list});
-        document.getElementById("file").value = "";
+        document.getElementById('file').value = '';
         document.getElementById('upload-progress').value = 0;
       }.bind(this)
     });
@@ -79,11 +79,11 @@ class Folder extends React.Component {
 
   componentWillReceiveProps() {
     if (this.props.erase) {
-      // console.log("######");
+      // console.log('######');
       for (let i in this.state.list){
         if (this.state.list[i].key === this.state.eraseKey) {
           this.state.list.splice(i, 1);
-          // console.log("@@@");
+          // console.log('@@@');
           this.updateList(this.state.list);
           this.setState({eraseKey: ''});
         }
