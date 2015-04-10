@@ -24,8 +24,6 @@ class SignIn extends React.Component {
   render() {
     return (
       <div className="container-fluid">
-        <div className="row">
-          <div className="col-sm-5">
 
             <form onSubmit={this.handleSubmit.bind(this)}>
               <div className="form-group">
@@ -39,8 +37,6 @@ class SignIn extends React.Component {
               <button type="submit" className="btn">Sign in</button>
             </form>
 
-          </div>
-        </div>
       </div>
     );
   }

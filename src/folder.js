@@ -100,7 +100,7 @@ class Folder extends React.Component {
 
         <form encType="multipart/form-data" onSubmit={this.uploadFile.bind(this)}>
           <input id="file" type="file" className="btn" required accept multiple />
-          <button type="submit" className="btn">Insert</button>
+          <button type="submit" className="btn insert">Insert</button>
         </form>
         <progress id="upload-progress" min="0" max="100" value="0">0</progress>
 

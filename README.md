@@ -20,3 +20,7 @@ asmCrypto: https://github.com/vibornoff/asmcrypto.js#aes_cbc
 `python3 -m http.server`
 
 `jsx -w --harmony src/ build/`
+
+`sass --watch app.scss:app.css`  
+`sass --style compressed app.scss app.css`
+

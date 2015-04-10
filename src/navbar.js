@@ -41,20 +41,20 @@ class Navbar extends React.Component {
     if(this.props.auth){
       button = (
         <div>
-          <a className="navbar-brand" href="#/a">
+          <a className="nav-site" href="#/a">
             <span className="fa fa-plus" aria-hidden="true"></span>
           </a>
-          <a className="navbar-brand" href="#/tasks">
+          <a className="nav-site" href="#/tasks">
             <span className="fa fa-tasks" aria-hidden="true"></span>
           </a>
-          <a className="navbar-brand" href="#/folder">
+          <a className="nav-site" href="#/folder">
             <span className="fa fa-folder" aria-hidden="true"></span>
           </a>
-          <div className="navbar-brand" onDragOver={this.preventDefault} onDrop={this.drop.bind(this)}>
+          <div className="nav-site" onDragOver={this.preventDefault} onDrop={this.drop.bind(this)}>
             <span className="fa fa-trash-o" aria-hidden="true"></span>
           </div>
-          <span className="navbar-brand"></span>
-          <a className="navbar-brand" href onClick={this.handleLogoutClick.bind(this)}>
+          <span className="nav-site"></span>
+          <a className="nav-site" href onClick={this.handleLogoutClick.bind(this)}>
             <span className="fa fa-sign-out" aria-hidden="true"></span>
           </a>
         </div>
@@ -62,7 +62,7 @@ class Navbar extends React.Component {
     } else {
       button = (
         <div>
-          <a className="navbar-brand" href onClick={this.handleLoginClick.bind(this)}>
+          <a className="nav-site" href onClick={this.handleLoginClick.bind(this)}>
             <span className="fa fa-sign-in" aria-hidden="true"></span>
           </a>
         </div>
@@ -70,13 +70,13 @@ class Navbar extends React.Component {
     }
 
     return (
-      <nav className="navbar navbar-default">
-        <div className="container-fluid">
-          <a className="navbar-brand custom-title" href onClick={this.handleIndexClick.bind(this)}>{siteTitle}</a>
-          <form className="navbar-form navbar-left" role="search" onSubmit={this.handleMainputChange.bind(this)}>
+      <nav className="nav-main">
+        <div className="wrap">
+          <a className="nav-site nav-title" href onClick={this.handleIndexClick.bind(this)}>{siteTitle}</a>
+          <form className="nav-form left" role="search" onSubmit={this.handleMainputChange.bind(this)}>
             <input type="text" className="form-control mainput" ref="mainput" onChange={this.handleMainputChange.bind(this)} />
           </form>
-          <div className="navbar-right">
+          <div className="right nav-right">
             {button}
           </div>
         </div>

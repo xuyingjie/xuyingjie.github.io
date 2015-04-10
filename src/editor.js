@@ -106,12 +106,12 @@ class Editor extends React.Component {
           <div className="form-group">
             <textarea id="content" className="form-control" rows="17" placeholder="value" onChange={this.handleContentChange.bind(this)} value={x.content} />
           </div>
-          <button type="submit" className="btn pull-right">Save</button>
+          <button type="submit" className="btn insert right">Save</button>
         </form>
 
         <form encType="multipart/form-data" onSubmit={this.uploadFile.bind(this)}>
           <input id="file" type="file" className="btn" required accept multiple />
-          <button type="submit" className="btn">Insert</button>
+          <button type="submit" className="btn insert">Insert</button>
         </form>
         <progress id="upload-progress" min="0" max="100" value="0">0</progress>
 
