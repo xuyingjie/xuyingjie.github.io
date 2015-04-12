@@ -119,11 +119,14 @@ class File extends React.Component {
   render() {
     var x = this.props.data;
     return (
-      <a className="list-group-item" href="#/folder" data-key={x.key} draggable='true' onDragStart={this.props.dragStart} onClick={this.props.download}>
-        <i className={fileTypeIcons(x.type) + " fa-fw fa-lg"}></i>&nbsp;
-        {x.name}
-        <span id={x.key} className="pull-right">{(x.size/1024).toFixed(2) + "KB"}</span>
-      </a>
+      <div>
+        <a className="list-group-item" href="#/folder" data-key={x.key} draggable='true' onDragStart={this.props.dragStart} onClick={this.props.download}>
+          <i className={fileTypeIcons(x.type) + " fa-fw fa-lg"}></i>&nbsp;
+          {x.name}
+          <span className="right">{(x.size/1024).toFixed(2) + "KB"}</span>
+        </a>
+        <div id={x.key} className="list-group-item progress-bar"></div>
+      </div>
     );
   }
 }

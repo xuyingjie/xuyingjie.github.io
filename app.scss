@@ -267,7 +267,7 @@ textarea.form-control {
   font-size: $base-size;
   color: $font-color;
 
-  line-height: 1.42857;
+  line-height: 22px;
   vertical-align: middle;
   padding: 6px 12px;
   background-color: $bg-color;
@@ -356,9 +356,10 @@ ul.list-group {
 a.list-group-item {
   color: $font-color;
   text-decoration: none;
+  background: rgba(255, 255, 255, 0.75) none repeat scroll;
 }
 a.list-group-item:hover, a.list-group-item:focus {
-  background-color: #E6E6E6;
+  background-color: rgba(230, 230, 230, 0.75);
 }
 .list-group-item {
   position: relative;
@@ -367,4 +368,32 @@ a.list-group-item:hover, a.list-group-item:focus {
   margin-bottom: -1px;
   background-color: #FFF;
   border: 1px solid #E6E6E6;
+}
+
+.progress-bar {
+  background-color: $nav-color;
+  width: 0%;
+  height: 46px;
+  margin-top: -46px;
+  padding-left: 0px;
+  padding-right: 0px;
+  z-index: -1;
+}
+
+.btn-w {
+  width: 350px;
+}
+.progress-btn {
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.75);
+}
+.progress-btn:hover, .progress-btn:focus {
+  background-color: rgba(230, 230, 230, 0.75);
+}
+.progress-btn-bar {
+  background-color: $nav-color;
+  width: 0%;
+  height: 5px;
+  margin-top: -5px;
+  z-index: -1;
 }

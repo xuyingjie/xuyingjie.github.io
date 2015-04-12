@@ -77,9 +77,11 @@ function ajaxArrayBuffer(opts) {
     xhr.onprogress = function(e) {
       if (e.lengthComputable) {
         if (e.loaded === e.total) {
-          opts.progress.innerHTML = (e.total / 1024).toFixed(2) + 'KB';
+          // opts.progress.innerHTML = (e.total / 1024).toFixed(2) + 'KB';
+          opts.progress.style.width = '0%';
         } else {
-          opts.progress.innerHTML = ((e.loaded / e.total) * 100).toFixed(2) + '%';
+          // opts.progress.innerHTML = ((e.loaded / e.total) * 100).toFixed(2) + '%';
+          opts.progress.style.width = ((e.loaded / e.total) * 100).toFixed(2) + '%';
         }
       }
     };

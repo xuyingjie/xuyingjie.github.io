@@ -127,7 +127,7 @@ class Fragment extends React.Component {
       <div>
         <div className="container-fluid">
           <h2>{x.title}</h2>
-          <span dangerouslySetInnerHTML={{__html: rawMarkup}} />
+          <div dangerouslySetInnerHTML={{__html: rawMarkup}}></div>
           {button}
         </div>
         <hr />

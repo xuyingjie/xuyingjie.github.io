@@ -59,11 +59,11 @@ class Editor extends React.Component {
 
           if (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'image/vnd.microsoft.icon'){
             c = `
-<span name="enc-img" data-name="${file.name}" data-type="${file.type}" data-key="${key}"><i class="fa fa-spinner fa-pulse fa-2x"></i></span>
+<div name="enc-img" data-name="${file.name}" data-type="${file.type}" data-key="${key}"><i class="fa fa-spinner fa-pulse fa-2x"></i></div>
 `;
           } else {
             c = `
-<a class="btn" data-key="${key}" draggable="true" ondragstart="dragStart(event)" onclick="nDown('${file.name}','${file.type}','${key}',${open})"><i class="${fileTypeIcons(file.type)} fa-lg"></i>&nbsp;${file.name}&nbsp;<span id="${key}">${(file.size/1024).toFixed(2)}KB</span></a>
+<div class="btn-w"><div class="btn progress-btn" data-key="${key}" draggable="true" ondragstart="dragStart(event)" onclick="nDown('${file.name}','${file.type}','${key}',${open})"><i class="${fileTypeIcons(file.type)} fa-lg"></i>&nbsp;${file.name}<span class="right">${(file.size/1024).toFixed(2)}KB</span></div><div id="${key}" class="progress-btn-bar"></div></div>
 `;
           }
 
