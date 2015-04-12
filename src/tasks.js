@@ -92,7 +92,7 @@ class Tasks extends React.Component {
     var tasks = this.state.query.slice(0).reverse();
 
     return (
-      <div className="container-fluid">
+      <div className="wrap">
         <form onSubmit={this.save.bind(this)}>
           <div className="form-group">
             <input type="text" className="form-control" placeholder="tasks" onChange={this.handleChange.bind(this)} ref="content" />
@@ -114,7 +114,7 @@ class Task extends React.Component {
       <div>
         <span className="tasks">
           {x.content}&nbsp;
-          <a href="#/tasks" onClick={this.props.edit}>
+          <a onClick={this.props.edit}>
             <i className="fa fa-pencil"></i>
           </a>
         </span>

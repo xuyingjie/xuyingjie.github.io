@@ -55,17 +55,7 @@ class Editor extends React.Component {
         open,
         progress,
         success: function() {
-          var c = '';
-
-          if (file.type === 'image/png' || file.type === 'image/jpeg' || file.type === 'image/vnd.microsoft.icon'){
-            c = `
-<div name="enc-img" data-name="${file.name}" data-type="${file.type}" data-key="${key}"><i class="fa fa-spinner fa-pulse fa-2x"></i></div>
-`;
-          } else {
-            c = `
-<div class="btn-w"><div class="btn progress-btn" data-key="${key}" draggable="true" ondragstart="dragStart(event)" onclick="nDown('${file.name}','${file.type}','${key}',${open})"><i class="${fileTypeIcons(file.type)} fa-lg"></i>&nbsp;${file.name}<span class="right">${(file.size/1024).toFixed(2)}KB</span></div><div id="${key}" class="progress-btn-bar"></div></div>
-`;
-          }
+          var c = `!{${file.name},${(file.size/1024).toFixed(2)}KB,${file.type},${key}}`;
 
           var textarea = document.getElementById('content');
           insertText(textarea, c);
@@ -102,7 +92,7 @@ class Editor extends React.Component {
   render() {
     var x = this.state.section;
     return (
-      <div className="container-fluid">
+      <div className="wrap">
 
         <form onSubmit={this.uploadSetToServer.bind(this)}>
           <div className="form-group">

@@ -23,7 +23,7 @@ class SignIn extends React.Component {
 
   render() {
     return (
-      <div className="container-fluid">
+      <div className="wrap">
 
             <form onSubmit={this.handleSubmit.bind(this)}>
               <div className="form-group">

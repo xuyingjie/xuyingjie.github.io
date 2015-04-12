@@ -40,7 +40,7 @@ class Contents extends React.Component {
 
   render() {
     return (
-      <div className="container-fluid">
+      <div className="wrap">
         {this.state.contents.map(function(x){
           return <a className="btn" key={x.id} href={"#/t/" + x.id} role="button">{x.title}</a>;
         })}

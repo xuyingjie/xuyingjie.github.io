@@ -58,10 +58,14 @@ console.log('a');
           if (data) {
             this.setState({section: [data]});
             refresh = false;
-            this.imgEvent();
+            if (document.getElementsByName('enc-img').length !== 0) {
+              this.imgEvent();
 
-            // 滚动加载图片
-            window.onscroll = this.imgEvent.bind(this);
+              // 滚动加载图片
+              window.onscroll = this.imgEvent.bind(this);
+            } else {
+              window.onscroll = null;
+            }
           }
         }.bind(this));
       }
@@ -83,8 +87,12 @@ console.log('a');
           this.setState({section: query});
           this.setState({keyword: keyword});
           refresh = false;
-          this.imgEvent();
-          window.onscroll = this.imgEvent.bind(this);
+          if (document.getElementsByName('enc-img').length !== 0) {
+            this.imgEvent();
+            window.onscroll = this.imgEvent.bind(this);
+          } else {
+            window.onscroll = null;
+          }
         }
       }
     }
@@ -120,18 +128,81 @@ class Fragment extends React.Component {
     if(this.props.auth){
       button = <a className="label label-default" href={"#/e/" + x.id}>编辑</a>;
     }
-    var converter = new Showdown.converter();
-    var rawMarkup = converter.makeHtml(x.content);
+
+    var rawMarkup = md.render(x.content);
+
+    // 处理Markdown文本中 ![name, type, size, key] 标记
+    var parts = rawMarkup.split(/(!\[.*?,.*?,.*?,.*?\])/);
+    for (let i = 0; i < parts.length; i++) {
+      if (i % 2 === 0) {
+        if (parts[i] !== '') {
+          parts[i] = <div dangerouslySetInnerHTML={{__html: parts[i]}}></div>;
+        }
+      } else {
+        let m = parts[i].match(/!\[(.*?),(.*?),(.*?),(.*?)\]/);
+
+        // 省略过长的name
+        if (m[1].length > 12) {
+          if (m[1].match(/[\u4e00-\u9fa5]/)) {
+            m[1] = m[1].substring(0, 11) + '...';
+          } else {
+            if (m[1].length > 21) {
+              m[1] = m[1].substring(0, 18) + '...';
+            }
+          }
+        }
+
+        var data = {
+          name: m[1],
+          size: m[2],
+          type: m[3],
+          key: m[4]
+        };
+        parts[i] =  <Attachment data={data} />;
+      }
+    }
 
     return (
       <div>
-        <div className="container-fluid">
+        <div className="wrap">
           <h2>{x.title}</h2>
-          <div dangerouslySetInnerHTML={{__html: rawMarkup}}></div>
+          {parts}
           {button}
         </div>
         <hr />
       </div>
     );
+  }
+}
+
+class Attachment extends React.Component {
+  dragStart(e) {
+    let key = e.target.dataset.key;
+    e.dataTransfer.setData('key', key);
+  }
+
+  download(file){
+    nDown(file.name, file.type, file.key, open);
+  }
+
+  render() {
+    var x = this.props.data;
+    var c;
+
+    if (x.type === 'image/png' || x.type === 'image/jpeg' || x.type === 'image/vnd.microsoft.icon'){
+      c = (
+        <div name="enc-img" data-name={x.name} data-type={x.type} data-key={x.key}>
+          <i className="fa fa-spinner fa-pulse fa-2x"></i>
+        </div>
+      );
+    } else {
+      c = (
+        <div className="file-inline">
+          <File key={x.key} data={x} download={this.download.bind(this, x)} dragStart={this.dragStart.bind(this)} />
+        </div>
+      );
+    }
+
+    return <div>{c}</div>;
   }
 }

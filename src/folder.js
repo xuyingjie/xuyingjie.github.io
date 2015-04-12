@@ -96,7 +96,7 @@ class Folder extends React.Component {
     var list = this.state.list.slice(0).reverse();
 
     return (
-      <div className="container-fluid">
+      <div className="wrap">
 
         <form encType="multipart/form-data" onSubmit={this.uploadFile.bind(this)}>
           <input id="file" type="file" className="btn" required accept multiple />
@@ -106,6 +106,7 @@ class Folder extends React.Component {
 
         <ul className="list-group">
           {list.map(function(x){
+            x.size = (x.size/1024).toFixed(2) + 'KB';
             return <File key={x.key} data={x} download={this.download.bind(this, x)} dragStart={this.dragStart.bind(this)} />;
           }.bind(this))}
         </ul>
@@ -120,10 +121,10 @@ class File extends React.Component {
     var x = this.props.data;
     return (
       <div>
-        <a className="list-group-item" href="#/folder" data-key={x.key} draggable='true' onDragStart={this.props.dragStart} onClick={this.props.download}>
+        <a className="list-group-item" data-key={x.key} draggable='true' onDragStart={this.props.dragStart} onClick={this.props.download}>
           <i className={fileTypeIcons(x.type) + " fa-fw fa-lg"}></i>&nbsp;
           {x.name}
-          <span className="right">{(x.size/1024).toFixed(2) + "KB"}</span>
+          <span className="right">{x.size}</span>
         </a>
         <div id={x.key} className="list-group-item progress-bar"></div>
       </div>

@@ -29,6 +29,13 @@ var local = '#/';
 // 异步缓存时 传递刷新条件
 var refresh = false;
 
+// Markdown
+var md = window.markdownit({
+  html: true,
+  breaks: true,
+  linkify: true
+});
+
 
 /**
  * indexedDB

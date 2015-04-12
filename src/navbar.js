@@ -54,7 +54,7 @@ class Navbar extends React.Component {
             <span className="fa fa-trash-o" aria-hidden="true"></span>
           </div>
           <span className="nav-site"></span>
-          <a className="nav-site" href onClick={this.handleLogoutClick.bind(this)}>
+          <a className="nav-site" onClick={this.handleLogoutClick.bind(this)}>
             <span className="fa fa-sign-out" aria-hidden="true"></span>
           </a>
         </div>
@@ -62,7 +62,7 @@ class Navbar extends React.Component {
     } else {
       button = (
         <div>
-          <a className="nav-site" href onClick={this.handleLoginClick.bind(this)}>
+          <a className="nav-site" onClick={this.handleLoginClick.bind(this)}>
             <span className="fa fa-sign-in" aria-hidden="true"></span>
           </a>
         </div>
@@ -72,7 +72,7 @@ class Navbar extends React.Component {
     return (
       <nav className="nav-main">
         <div className="wrap">
-          <a className="nav-site nav-title" href onClick={this.handleIndexClick.bind(this)}>{siteTitle}</a>
+          <a className="nav-site nav-title" onClick={this.handleIndexClick.bind(this)}>{siteTitle}</a>
           <form className="nav-form left" role="search" onSubmit={this.handleMainputChange.bind(this)}>
             <input type="text" className="form-control mainput" ref="mainput" onChange={this.handleMainputChange.bind(this)} />
           </form>
