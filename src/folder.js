@@ -39,11 +39,12 @@ class Folder extends React.Component {
         progress: document.getElementById('upload-progress'),
         success: function() {
 
+          var size = (file.size/1024).toFixed(2) + 'KB';
           var d = {
             key,
             name: file.name,
             type: file.type,
-            size: file.size
+            size
           };
           var list = this.state.list;
           list.push(d);
@@ -71,9 +72,7 @@ class Folder extends React.Component {
     });
   }
 
-  dragStart(e) {
-    let key = e.target.dataset.key;
-    e.dataTransfer.setData('key', key);
+  toErase(key) {
     this.setState({eraseKey: key});
   }
 
@@ -106,8 +105,7 @@ class Folder extends React.Component {
 
         <ul className="list-group">
           {list.map(function(x){
-            x.size = (x.size/1024).toFixed(2) + 'KB';
-            return <File key={x.key} data={x} download={this.download.bind(this, x)} dragStart={this.dragStart.bind(this)} />;
+            return <File key={x.key} data={x} download={this.download.bind(this, x)} toErase={this.toErase.bind(this)} />;
           }.bind(this))}
         </ul>
 
@@ -117,11 +115,20 @@ class Folder extends React.Component {
 }
 
 class File extends React.Component {
+
+  dragStart(e) {
+    let key = e.target.dataset.key;
+    e.dataTransfer.setData('key', key);
+    if (this.props.toErase) {
+      this.props.toErase(key);
+    }
+  }
+
   render() {
     var x = this.props.data;
     return (
       <div>
-        <a className="list-group-item" data-key={x.key} draggable='true' onDragStart={this.props.dragStart} onClick={this.props.download}>
+        <a className="list-group-item" data-key={x.key} draggable='true' onDragStart={this.dragStart.bind(this)} onClick={this.props.download}>
           <i className={fileTypeIcons(x.type) + " fa-fw fa-lg"}></i>&nbsp;
           {x.name}
           <span className="right">{x.size}</span>

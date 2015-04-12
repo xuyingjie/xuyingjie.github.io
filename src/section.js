@@ -176,10 +176,6 @@ class Fragment extends React.Component {
 }
 
 class Attachment extends React.Component {
-  dragStart(e) {
-    let key = e.target.dataset.key;
-    e.dataTransfer.setData('key', key);
-  }
 
   download(file){
     nDown(file.name, file.type, file.key, open);
@@ -198,7 +194,7 @@ class Attachment extends React.Component {
     } else {
       c = (
         <div className="file-inline">
-          <File key={x.key} data={x} download={this.download.bind(this, x)} dragStart={this.dragStart.bind(this)} />
+          <File key={x.key} data={x} download={this.download.bind(this, x)} />
         </div>
       );
     }
