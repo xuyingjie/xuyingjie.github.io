@@ -364,3 +364,12 @@ a.list-group-item:hover, a.list-group-item:focus {
   height: 34px;
   margin-top: -34px;
 }
+
+#success-info {
+  position: fixed;
+  right: 0px;
+  top: 50px;
+  padding: 2px 8px;
+  color: $font-color-o;
+  background-color: $main-color;
+}

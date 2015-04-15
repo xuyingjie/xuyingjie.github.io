@@ -262,6 +262,31 @@ function dragStart(e) {
   e.dataTransfer.setData('key', e.target.dataset.key);
 }
 
+function successInfo(info) {
+  'use strict';
+
+  var div = document.createElement('div');
+  div.innerHTML = `<div id="success-info">${info}</div>`;
+  document.body.appendChild(div);
+
+  var tick = setTimeout(function(){
+    document.body.removeChild(div);
+    clearTimeout(tick);
+  }, 700);
+
+  // var a = 1;
+  // var tick = setInterval(function(){
+  //   if (a > 0) {
+  //     document.getElementById('success-info').style.backgroundColor = `rgba(86, 61, 124, ${a})`;
+  //     // document.getElementById('success-info').style.backgroundColor = `rgba(0, 112, 149, ${a})`;
+  //     a = a - 2;
+  //   } else {
+  //     clearInterval(tick);
+  //     document.body.removeChild(div);
+  //   }
+  // }, 700);
+}
+
 function timeDiff() {
   return Date.now() + '' + Math.floor(Math.random() * 9000 + 1000); // 或加入IP
 }

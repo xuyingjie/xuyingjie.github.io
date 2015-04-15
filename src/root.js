@@ -144,6 +144,7 @@ class Root extends React.Component {
       data: strToUTF8Arr('x'),
       success: function() {
         console.log('Erase!!!');
+        successInfo('Erase!!!');
         this.setState({erase: true});
         this.setState({erase: true});
         // this.setState({erase: true});

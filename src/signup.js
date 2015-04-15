@@ -20,7 +20,7 @@ class SignUp extends React.Component {
       token: passwd,
       success: function() {
         console.log('Success!');
-        this.refs.status.getDOMNode().value = 'Success!';
+        successInfo('Success!!!');
       }.bind(this)
     });
 
@@ -30,32 +30,29 @@ class SignUp extends React.Component {
     return (
       <div className="wrap">
 
-            <form onSubmit={this.handleSubmit.bind(this)}>
-              <div className="form-group">
-                <label htmlFor="inputName3">Name</label>
-                <input type="text" className="form-control" id="inputName3" ref="name"/>
-              </div>
-              <div className="form-group">
-                <label htmlFor="inputPassword3">Password</label>
-                <input type="text" className="form-control" id="inputPassword3" ref="passwd"/>
-              </div>
-              <div className="form-group">
-                <label htmlFor="token">Token</label>
-                <input type="text" className="form-control" id="token" ref="token"/>
-              </div>
-              <div className="form-group">
-                <label htmlFor="AK">AK</label>
-                <input type="text" className="form-control" id="AK" ref="AK"/>
-              </div>
-              <div className="form-group">
-                <label htmlFor="SK">SK</label>
-                <input type="text" className="form-control" id="SK" ref="SK"/>
-              </div>
-              <button type="submit" className="btn">Sign up</button>
-            </form>
-
-            <br />
-            <textarea ref="status"/>
+        <form onSubmit={this.handleSubmit.bind(this)}>
+          <div className="form-group">
+            <label htmlFor="inputName3">Name</label>
+            <input type="text" className="form-control" id="inputName3" ref="name"/>
+          </div>
+          <div className="form-group">
+            <label htmlFor="inputPassword3">Password</label>
+            <input type="text" className="form-control" id="inputPassword3" ref="passwd"/>
+          </div>
+          <div className="form-group">
+            <label htmlFor="token">Token</label>
+            <input type="text" className="form-control" id="token" ref="token"/>
+          </div>
+          <div className="form-group">
+            <label htmlFor="AK">AK</label>
+            <input type="text" className="form-control" id="AK" ref="AK"/>
+          </div>
+          <div className="form-group">
+            <label htmlFor="SK">SK</label>
+            <input type="text" className="form-control" id="SK" ref="SK"/>
+          </div>
+          <button type="submit" className="btn">Sign up</button>
+        </form>
       </div>
     );
   }
