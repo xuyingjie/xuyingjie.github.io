@@ -1,16 +1,16 @@
 /* http://facebook.github.io/react/css/react.css */
+@import "normalize.scss";
 
-$san-en: DejaVu Sans;
-$san-fonts: $san-en, FZYouHeiS-R-GB, FZLanTingHei-R-GBK, Microsoft YaHei, sans-serif;
-$blockquote-fonts: $san-en, FZJunHeiS-M-GB, FZYouHeiS-R-GB, Microsoft YaHei, sans-serif;
-$code-fonts: DejaVu Sans Mono, Source Code Pro, Consolas, monospace, FZYouHeiS-R-GB, FZLanTingHei-R-GBK;
+$san-fonts: DejaVu Sans, FZLanTingHei-R-GBK, Microsoft YaHei, sans-serif;
+$blockquote-fonts: DejaVu Sans, FZJunHeiS-M-GB, FZLanTingHei-R-GBK, Microsoft YaHei, sans-serif;
+$code-fonts: DejaVu Sans Mono, Source Code Pro, Consolas, monospace, FZLanTingHei-R-GBK;
 
 $base-size: 16px;
 $font-color: rgba(0, 0, 0, 0.87);
 $font-color-o: rgba(255, 255, 255, 0.87);
 
 $bg-color: #FFFFFF;
-$nav-color: #00BCD4;
+$main-color: #00BCD4;
 
 $main-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.26);
 
@@ -18,10 +18,10 @@ $nav-h: 50px;
 
 
 * {
-  box-sizing:border-box;
-  border:none;
-  margin:0;
-  padding:0;
+  box-sizing: border-box;
+  border: none;
+  margin: 0;
+  padding: 0;
 }
 
 /*html *{
@@ -34,8 +34,9 @@ body {
   font-size: $base-size;
   line-height: 1.5;
   color: $font-color;
-/*   background-color: $bg-color; */
-  padding-top: $nav-h + 20px;
+  background-color: $bg-color;
+  padding-top: 70px;
+  padding-bottom: 20px;
 }
 
 p{
@@ -45,8 +46,6 @@ p{
 /** Headings */
 h1,h2,h3,h4,h5,h6 {
   margin: 10px 0;
-  font-family: inherit;
-  font-weight: bold;
   line-height: 20px;
   color: $font-color;
   text-rendering: optimizelegibility;
@@ -121,9 +120,9 @@ a:focus {
 blockquote {
   font-family: $blockquote-fonts;
   color: #616161;
-  font-size: 17px;
+  font-size: 18px;
   letter-spacing: -0.5px;
-  font-style: italic;
+  // font-style: italic;
 
 /*   padding: 5px 15px; */
   padding-left: 15px;
@@ -137,7 +136,6 @@ blockquote > :last-child { margin-bottom: 0; }
 /** Code formatting */
 pre, code {
   font-family: $code-fonts;
-  color: $font-color;
 /*   font-size: $base-size; */
   background-color: #FAFAFA;
   border: 1px solid #E0E0E0;
@@ -160,6 +158,20 @@ hr {
   border-color: #EEEEEE;
 }
 
+table {
+  max-width: 100%;
+  margin-bottom: 20px;
+}
+table > thead > tr > th, table > tbody > tr > th, table > tfoot > tr > th, table > thead > tr > td, table > tbody > tr > td, table > tfoot > tr > td {
+  border: 1px solid #DDD;
+  vertical-align: top;
+  line-height: 1.42857;
+  padding: 8px;
+}
+th {
+  text-align: left;
+}
+
 
 
 .left {
@@ -178,15 +190,21 @@ hr {
   padding-right: 20px;
 }
 
+@media screen and (max-width: 800px) {
+  .wrap {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
 
 
 /** Navbar */
 .nav-main {
-  background: $nav-color;
+  background: $main-color;
   color: $font-color-o;
   position: fixed;
   top: 0px;
-  height: $nav-h;
+  height: 50px;
   box-shadow: $main-shadow;
   width: 100%;
   z-index: 100;
@@ -194,11 +212,11 @@ hr {
 
 .nav-site {
 /*   box-sizing:content-box; */
-  padding: 15px 8px;
-  line-height:20px;
+  padding: 0px 8px;
+  line-height: 50px;
   float: left;
-  height: $nav-h;
-  font-size: 17px;
+  height: 50px;
+  // font-size: 17px;
   color: $font-color-o;
 }
 
@@ -230,7 +248,6 @@ a.nav-site:hover, a.nav-site:focus {
 
   line-height: 1.42857;
   font-size: 14px;
-  color: $font-color;
 
   background-color: $bg-color;
   border-bottom: 2px solid #E0E0E0;
@@ -244,9 +261,9 @@ textarea.form-control {
   font-size: $base-size;
 }
 .mainput, .mainput:focus {
-  background-color: $nav-color;
+  background-color: $main-color;
   color: $font-color;
-  border-top: 1px solid $nav-color;
+  border-top: 1px solid $main-color;
   border-bottom: 1px solid $font-color-o;
   height: 20px;
   padding: 0px;
@@ -264,10 +281,7 @@ textarea.form-control {
   display: inline-block;
   cursor: pointer;
 
-  font-family: inherit;
-  font-size: $base-size;
   color: $font-color;
-
   line-height: 22px;
   vertical-align: middle;
   padding: 6px 12px;
@@ -282,6 +296,7 @@ textarea.form-control {
   background-color: #E6E6E6;
   box-shadow: $main-shadow;
   text-decoration: none;
+  outline: none;
 }
 
 .insert {
@@ -311,44 +326,6 @@ progress::-webkit-progress-bar { background: transparent; }
   box-shadow: $main-shadow;
 }
 
-.label {
-/*   background-color: #E0E0E0; */
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-
-table {
-    border-collapse: collapse;
-    border-spacing: 0px;
-}
-.table {
-  width: 100%;
-  max-width: 100%;
-  margin-bottom: 20px;
-}
-.table-bordered {
-    border: 1px solid #DDD;
-}
-.table-bordered > thead > tr > th, .table-bordered > tbody > tr > th, .table-bordered > tfoot > tr > th, .table-bordered > thead > tr > td, .table-bordered > tbody > tr > td, .table-bordered > tfoot > tr > td {
-    border: 1px solid #DDD;
-}
-.table > thead > tr > th, .table > tbody > tr > th, .table > tfoot > tr > th, .table > thead > tr > td, .table > tbody > tr > td, .table > tfoot > tr > td {
-    border-top: 1px solid #DDD;
-    vertical-align: top;
-    line-height: 1.42857;
-    padding: 8px;
-}
-th {
-    text-align: left;
-}
-td, th {
-    padding: 0px;
-}
-
-
 
 ul.list-group {
   margin-left: 0px;
@@ -373,7 +350,7 @@ a.list-group-item:hover, a.list-group-item:focus {
 }
 
 .progress-bar {
-  background-color: $nav-color;
+  background-color: $main-color;
   width: 0%;
   height: 46px;
   margin-top: -46px;

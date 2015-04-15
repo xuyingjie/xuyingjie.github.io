@@ -55,7 +55,9 @@ class Editor extends React.Component {
         open,
         progress,
         success: function() {
-          var c = `![${file.name},${(file.size/1024).toFixed(2)}KB,${file.type},${key}]`;
+          var c = `
+![${file.name},${(file.size/1024).toFixed(2)}KB,${file.type},${key}]
+`;
 
           var textarea = document.getElementById('content');
           insertText(textarea, c);

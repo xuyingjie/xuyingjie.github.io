@@ -126,7 +126,7 @@ class Fragment extends React.Component {
     var x = this.props.data;
     var button = <div></div>;
     if(this.props.auth){
-      button = <a className="label label-default" href={"#/e/" + x.id}>编辑</a>;
+      button = <a href={"#/e/" + x.id}>编辑</a>;
     }
 
     var rawMarkup = md.render(x.content);
@@ -184,6 +184,9 @@ class Attachment extends React.Component {
   render() {
     var x = this.props.data;
     var c;
+    var inline = {
+      display: 'inline-block'
+    };
 
     if (x.type === 'image/png' || x.type === 'image/jpeg' || x.type === 'image/vnd.microsoft.icon'){
       c = (
@@ -199,6 +202,6 @@ class Attachment extends React.Component {
       );
     }
 
-    return <div>{c}</div>;
+    return <div style={inline}>{c}</div>;
   }
 }
