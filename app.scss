@@ -299,23 +299,14 @@ textarea.form-control {
   outline: none;
 }
 
-.insert {
-  height: 37px;
-  width: 100px;
-}
-
-input[type="file"] {
-  width: 280px;
-}
-
-progress {
-  height: 1px;
-  width: 380px;
-  background-color: $bg-color;
-  box-shadow: $main-shadow;
-  vertical-align: baseline;
-}
-progress::-webkit-progress-bar { background: transparent; }
+// progress {
+//   height: 1px;
+//   width: 380px;
+//   background-color: $bg-color;
+//   box-shadow: $main-shadow;
+//   vertical-align: baseline;
+// }
+// progress::-webkit-progress-bar { background: transparent; }
 
 
 /**   */
@@ -329,6 +320,7 @@ progress::-webkit-progress-bar { background: transparent; }
 
 ul.list-group {
   margin-left: 0px;
+  margin-top: 15px;
   box-shadow: $main-shadow;
 }
 a.list-group-item {
@@ -343,8 +335,8 @@ a.list-group-item:hover, a.list-group-item:focus {
   position: relative;
   display: block;
   cursor: pointer;
-  padding: 10px 15px;
-  margin-bottom: -1px;
+  padding: 8px 15px;
+  line-height: 26px;
   background-color: #FFF;
   border: 1px solid #E6E6E6;
 }
@@ -352,13 +344,23 @@ a.list-group-item:hover, a.list-group-item:focus {
 .progress-bar {
   background-color: $main-color;
   width: 0%;
-  height: 46px;
-  margin-top: -46px;
-  padding-left: 0px;
-  padding-right: 0px;
+  height: 44px;
+  margin-top: -44px;
+  margin-bottom: -1px;
+  padding: 0px;
   z-index: -1;
 }
 
-.file-inline {
+.attachment {
   width: 390px;
+  box-shadow: $main-shadow;
+}
+
+#file-info {
+  line-height: 22px;
+  padding: 5px 12px;
+}
+#upload-progress {
+  height: 34px;
+  margin-top: -34px;
 }

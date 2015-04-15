@@ -196,7 +196,7 @@ class Attachment extends React.Component {
       );
     } else {
       c = (
-        <div className="file-inline">
+        <div className="attachment">
           <File key={x.key} data={x} download={this.download.bind(this, x)} />
         </div>
       );

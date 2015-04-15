@@ -18,44 +18,19 @@ class Folder extends React.Component {
     nDown(file.name, file.type, file.key, false);
   }
 
-  uploadFile(e){
-    e.preventDefault();
+  uploadFileSuccess(key, file) {
 
-    var files = document.getElementById('file').files;
-    for (let i = 0; i < files.length; i++) {
-      this.readAndUpload(files[i]);
-    }
-  }
+    var size = (file.size/1024).toFixed(2) + 'KB';
+    var d = {
+      key,
+      name: file.name,
+      type: file.type,
+      size
+    };
+    var list = this.state.list;
+    list.push(d);
 
-  readAndUpload(file) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-
-      var key = 'folder/' + timeDiff();
-
-      upload({
-        key,
-        data: reader.result,
-        progress: document.getElementById('upload-progress'),
-        success: function() {
-
-          var size = (file.size/1024).toFixed(2) + 'KB';
-          var d = {
-            key,
-            name: file.name,
-            type: file.type,
-            size
-          };
-          var list = this.state.list;
-          list.push(d);
-
-          this.updateList(list);
-
-        }.bind(this)
-      });
-
-    }.bind(this);
-    reader.readAsArrayBuffer(file);
+    this.updateList(list);
   }
 
   updateList(list) {
@@ -63,11 +38,7 @@ class Folder extends React.Component {
       key: 'folder/list',
       data: strToUTF8Arr(JSON.stringify({'list': list})),
       success: function() {
-        console.log('Upload!!!');
-
         this.setState({list: list});
-        document.getElementById('file').value = '';
-        document.getElementById('upload-progress').value = 0;
       }.bind(this)
     });
   }
@@ -96,12 +67,7 @@ class Folder extends React.Component {
 
     return (
       <div className="wrap">
-
-        <form encType="multipart/form-data" onSubmit={this.uploadFile.bind(this)}>
-          <input id="file" type="file" className="btn" required accept multiple />
-          <button type="submit" className="btn insert">Insert</button>
-        </form>
-        <progress id="upload-progress" min="0" max="100" value="0">0</progress>
+        <InputFile uploadFolder="folder/" open={false} uploadFileSuccess={this.uploadFileSuccess.bind(this)} />
 
         <ul className="list-group">
           {list.map(function(x){

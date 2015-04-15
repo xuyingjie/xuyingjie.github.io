@@ -42,48 +42,17 @@ class Editor extends React.Component {
     this.setState({section: x});
   }
 
-  readAndUpload(file) {
-    var reader = new FileReader();
-    reader.onload = function(e) {
-
-      var key = 'u/' + timeDiff();
-      var progress = document.getElementById('upload-progress');
-
-      upload({
-        key,
-        data: reader.result,
-        open,
-        progress,
-        success: function() {
-          var c = `
+  uploadFileSuccess(key, file) {
+    var c = `
 ![${file.name},${(file.size/1024).toFixed(2)}KB,${file.type},${key}]
 `;
 
-          var textarea = document.getElementById('content');
-          insertText(textarea, c);
+    var textarea = document.getElementById('content');
+    insertText(textarea, c);
 
-          var section = this.state.section;
-          section.content = textarea.value;
-          this.setState({section: section});
-
-          document.getElementById('file').value = '';
-          progress.value = 0;
-        }.bind(this)
-      });
-
-    }.bind(this);
-    reader.readAsArrayBuffer(file);
-  }
-
-  uploadFile(e) {
-
-    // 阻止默认行为的发生。如跳转。
-    e.preventDefault();
-
-    var files = document.getElementById('file').files;
-    for (let i = 0; i < files.length; i++) {
-      this.readAndUpload(files[i]);
-    }
+    var section = this.state.section;
+    section.content = textarea.value;
+    this.setState({section: section});
   }
 
   uploadSetToServer(e) {
@@ -106,12 +75,78 @@ class Editor extends React.Component {
           <button type="submit" className="btn insert right">Save</button>
         </form>
 
-        <form encType="multipart/form-data" onSubmit={this.uploadFile.bind(this)}>
-          <input id="file" type="file" className="btn" required accept multiple />
-          <button type="submit" className="btn insert">Insert</button>
-        </form>
-        <progress id="upload-progress" min="0" max="100" value="0">0</progress>
+        <InputFile uploadFolder="u/" open={open} uploadFileSuccess={this.uploadFileSuccess.bind(this)} />
+      </div>
+    );
+  }
+}
 
+
+class InputFile extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {i: 0};
+  }
+
+  handleClick(e) {
+    e.preventDefault();
+
+    var file = document.getElementById('file');
+    var evt = document.createEvent('MouseEvents');
+    evt.initEvent('click', true, true);
+    file.dispatchEvent(evt);
+  }
+
+  handleChange() {
+
+    var files = document.getElementById('file').files;
+    var i = this.state.i;
+
+    if (i < files.length) {
+
+      var j = i + 1;
+      this.setState({i: j});
+      document.getElementById('file-info').innerHTML = files[i].name;
+      this.readAndUpload(files[i]);
+
+    } else {
+
+      document.getElementById('file').value = '';
+      document.getElementById('file-info').innerHTML = '选择文件上传';
+      this.setState({i: 0});
+    }
+  }
+
+  readAndUpload(file) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+
+      var key = this.props.uploadFolder + timeDiff();
+
+      upload({
+        key,
+        data: reader.result,
+        open: this.props.open,
+        progress: document.getElementById('upload-progress'),
+        success: function() {
+          this.props.uploadFileSuccess(key, file);
+          this.handleChange();
+        }.bind(this)
+      });
+
+    }.bind(this);
+    reader.readAsArrayBuffer(file);
+  }
+
+  render() {
+    return (
+      <div className="attachment">
+        <input id="file" style={{display: 'none'}} type="file" multiple onChange={this.handleChange.bind(this)} />
+        <a id="file-info" className="list-group-item" onClick={this.handleClick}>
+          选择文件上传
+        </a>
+        <div id="upload-progress" className="list-group-item progress-bar"></div>
       </div>
     );
   }

@@ -127,7 +127,11 @@ function upload(opts) {
   if (opts.progress) {
     xhr.upload.onprogress = function(e) {
       if (e.lengthComputable) {
-        opts.progress.value = (e.loaded / e.total) * 100;
+        if (e.loaded === e.total) {
+         opts.progress.style.width = '0%';
+       } else {
+         opts.progress.style.width = ((e.loaded / e.total) * 100).toFixed(2) + '%';
+       }
       }
     };
   }
