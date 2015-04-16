@@ -126,17 +126,16 @@ class Fragment extends React.Component {
     var x = this.props.data;
     var button = <div></div>;
     if(this.props.auth){
-      button = <a href={"#/e/" + x.id}>编辑</a>;
+      button = <div><a href={"#/e/" + x.id}>编辑</a></div>;
     }
 
-    var rawMarkup = md.render(x.content);
-
     // 处理Markdown文本中 ![name, type, size, key] 标记
-    var parts = rawMarkup.split(/(!\[.*?,.*?,.*?,.*?\])/);
+    var parts = x.content.split(/(!\[.*?,.*?,.*?,.*?\])/);
     for (let i = 0; i < parts.length; i++) {
       if (i % 2 === 0) {
         if (parts[i] !== '') {
-          parts[i] = <div dangerouslySetInnerHTML={{__html: parts[i]}}></div>;
+          var rawMarkup = md.render(parts[i]);
+          parts[i] = <div dangerouslySetInnerHTML={{__html: rawMarkup}}></div>;
         }
       } else {
         let m = parts[i].match(/!\[(.*?),(.*?),(.*?),(.*?)\]/);
