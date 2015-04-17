@@ -11,19 +11,19 @@ class Contents extends React.Component {
       // 返回新数组而不是引用
       var c = this.props.contents.slice(0);
 
-      if (this.props.auth) {
-
-        // 修改时间排序. !!!sort数组在原数组上进行排序
-        c.sort(function(a, b){
-          return b.timestamp - a.timestamp;
-        });
-      } else {
+      // if (this.props.auth) {
+      //
+      //   // 修改时间排序. !!!sort数组在原数组上进行排序
+      //   c.sort(function(a, b){
+      //     return b.timestamp - a.timestamp;
+      //   });
+      // } else {
 
         // 字母排序
         c.sort(function(a, b){
           return a.title.localeCompare(b.title);
         });
-      }
+      // }
       this.setState({contents: c});
     } else {
       clearInterval(this.interval);
