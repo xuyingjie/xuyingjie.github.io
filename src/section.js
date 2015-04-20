@@ -164,7 +164,7 @@ class Fragment extends React.Component {
     return (
       <div>
         <div className="wrap">
-          <h2>{x.title}</h2>
+          <h1>{x.title}</h1>
           {parts}
           {button}
         </div>

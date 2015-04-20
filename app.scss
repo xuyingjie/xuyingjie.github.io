@@ -1,11 +1,9 @@
 /* http://facebook.github.io/react/css/react.css */
 @import "normalize.scss";
 
-$san-fonts: DejaVu Sans, FZLanTingHei-R-GBK, Microsoft YaHei, sans-serif;
-$blockquote-fonts: DejaVu Sans, FZJunHeiS-M-GB, FZLanTingHei-R-GBK, Microsoft YaHei, sans-serif;
-$code-fonts: DejaVu Sans Mono, Source Code Pro, Consolas, monospace, FZLanTingHei-R-GBK;
+$san-fonts: HYQiHei-45S, HYQiHei, 思源黑体, Source Han Sans CN, DejaVu Sans, FZLanTingHei-R-GBK, Microsoft YaHei, sans-serif;
+$code-fonts: Source Code Pro, DejaVu Sans Mono, Consolas, HYQiHei-45S, HYQiHei, 思源黑体, Source Han Sans CN, monospace;
 
-$base-size: 16px;
 $font-color: rgba(0, 0, 0, 0.87);
 $font-color-o: rgba(255, 255, 255, 0.87);
 
@@ -13,8 +11,6 @@ $bg-color: #FFFFFF;
 $main-color: #00BCD4;
 
 $main-shadow: 0px 2px 5px 0px rgba(0, 0, 0, 0.26);
-
-$nav-h: 50px;
 
 
 * {
@@ -31,11 +27,11 @@ $nav-h: 50px;
 
 body {
   font-family: $san-fonts;
-  font-size: $base-size;
+  font-size: 16px;
   line-height: 1.5;
   color: $font-color;
   background-color: $bg-color;
-  padding-top: 70px;
+  padding-top: 65px;
   padding-bottom: 20px;
 }
 
@@ -52,36 +48,11 @@ h1,h2,h3,h4,h5,h6 {
 }
 
 h1,h2,h3 {
+  font-family: FZKeBenFangSongS-R-GB;
   line-height:40px;
   font-weight: 400;
-}
-
-h1 {
-  font-size:39px;
   color: rgba(0, 0, 0, 0.54);
-  letter-spacing: -1px;
-}
-
-h2 {
-  font-size:31px;
-  color: rgba(0, 0, 0, 0.54);
-  letter-spacing: -1px;
-}
-
-h3 {
-  font-size:23px;
-}
-
-h4 {
-  font-size:17px;
-}
-
-h5 {
-  font-size:14px;
-}
-
-h6 {
-  font-size:11px;
+  letter-spacing: -0.5px;
 }
 
 
@@ -118,9 +89,8 @@ a:focus {
 
 /** Blockquotes */
 blockquote {
-  font-family: $blockquote-fonts;
   color: #616161;
-  font-size: 18px;
+  font-size: 17px;
   letter-spacing: -0.5px;
   // font-style: italic;
 
@@ -136,13 +106,23 @@ blockquote > :last-child { margin-bottom: 0; }
 /** Code formatting */
 pre, code {
   font-family: $code-fonts;
-/*   font-size: $base-size; */
+  // font-size: 15px;
   background-color: #FAFAFA;
   border: 1px solid #E0E0E0;
 }
-code { padding: 1px 5px; }
-pre { padding: 8px 12px; margin-bottom: 15px; overflow-x: auto; }
-pre > code { border: 0; padding-right: 0; padding-left: 0; }
+code {
+  padding: 1px 5px;
+}
+pre {
+  padding: 8px 12px;
+  margin-bottom: 15px;
+  overflow-x: auto;
+}
+pre > code {
+  border: 0;
+  padding-right: 0;
+  padding-left: 0;
+}
 
 
 /** Other */
@@ -204,7 +184,8 @@ th {
   color: $font-color-o;
   position: fixed;
   top: 0px;
-  height: 50px;
+  padding-top: 1px;
+  height: 44px;
   box-shadow: $main-shadow;
   width: 100%;
   z-index: 100;
@@ -213,10 +194,9 @@ th {
 .nav-site {
 /*   box-sizing:content-box; */
   padding: 0px 8px;
-  line-height: 50px;
+  line-height: 44px;
+  height: 44px;
   float: left;
-  height: 50px;
-  // font-size: 17px;
   color: $font-color-o;
 }
 
@@ -226,8 +206,9 @@ a.nav-site:hover, a.nav-site:focus {
 }
 
 .nav-title {
-  color: rgba(255, 255, 255, 0.92);
+  // font-family: FZKeBenFangSongS-R-GB;
   font-size: 20px;
+  color: rgba(255, 255, 255, 0.92);
   margin-left: -8px;
 }
 
@@ -247,7 +228,7 @@ a.nav-site:hover, a.nav-site:focus {
   padding: 6px 12px 6px 2px;
 
   line-height: 1.42857;
-  font-size: 14px;
+  // font-size: 14px;
 
   background-color: $bg-color;
   border-bottom: 2px solid #E0E0E0;
@@ -258,19 +239,21 @@ a.nav-site:hover, a.nav-site:focus {
 textarea.form-control {
   height: auto;
   font-family: $code-fonts;
-  font-size: $base-size;
+  // font-size: 16px;
 }
 .mainput, .mainput:focus {
   background-color: $main-color;
+  font-size: 15px;
   color: $font-color;
   border-top: 1px solid $main-color;
   border-bottom: 1px solid $font-color-o;
-  height: 20px;
+  height: 22px;
   padding: 0px;
 }
 .nav-form {
+  width: 200px;
   margin: 0;
-  padding: 15px 0;
+  padding: 11px 0;
   border: 0;
   box-shadow: none;
 }
@@ -282,9 +265,10 @@ textarea.form-control {
   cursor: pointer;
 
   color: $font-color;
-  line-height: 22px;
+  line-height: 32px;
+  height: 32px;
   vertical-align: middle;
-  padding: 6px 12px;
+  padding: 0px 10px;
   background-color: $bg-color;
 /*  !!!  */
 /*   border: 1px solid #CCC; */
@@ -335,18 +319,20 @@ a.list-group-item:hover, a.list-group-item:focus {
   position: relative;
   display: block;
   cursor: pointer;
-  padding: 8px 15px;
-  line-height: 26px;
+  font-size: 15px;
+  padding: 0px 10px;
+  line-height: 36px;
+  height: 36px; // chrome zoom 会影响line-height
   background-color: #FFF;
-  border: 1px solid #E6E6E6;
+  // border: 1px solid #E6E6E6;
 }
 
 .progress-bar {
   background-color: $main-color;
   width: 0%;
-  height: 44px;
-  margin-top: -44px;
-  margin-bottom: -1px;
+  height: 36px;
+  margin-top: -36px;
+  // margin-bottom: -1px;
   padding: 0px;
   z-index: -1;
 }
@@ -358,18 +344,20 @@ a.list-group-item:hover, a.list-group-item:focus {
 }
 
 #file-info {
-  line-height: 22px;
-  padding: 5px 12px;
+  line-height: 32px;
+  height: 32px;
+  // padding: 5px 12px;
 }
 #upload-progress {
-  height: 34px;
-  margin-top: -34px;
+  width: 0%;
+  height: 32px;
+  margin-top: -32px;
 }
 
 #success-info {
   position: fixed;
   right: 0px;
-  top: 50px;
+  top: 44px;
   padding: 2px 8px;
   color: $font-color-o;
   background-color: $main-color;
