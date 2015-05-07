@@ -202,12 +202,6 @@ class Root extends React.Component {
       case 'join':
         page = <SignUp {...this.state} />;
         break;
-      case 'folder':
-        page = <Folder {...this.state} eraseEnd={this.handleEraseEnd.bind(this)} />;
-        break;
-      case 'tasks':
-        page = <Tasks {...this.state} />;
-        break;
       default:
         page = <Contents {...this.state} />;
         break;

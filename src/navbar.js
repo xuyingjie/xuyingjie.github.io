@@ -44,12 +44,6 @@ class Navbar extends React.Component {
           <a className="nav-site" href="#/a">
             <span className="fa fa-plus" aria-hidden="true"></span>
           </a>
-          <a className="nav-site" href="#/tasks">
-            <span className="fa fa-tasks" aria-hidden="true"></span>
-          </a>
-          <a className="nav-site" href="#/folder">
-            <span className="fa fa-folder" aria-hidden="true"></span>
-          </a>
           <div className="nav-site" onDragOver={this.preventDefault} onDrop={this.drop.bind(this)}>
             <span className="fa fa-trash-o" aria-hidden="true"></span>
           </div>
