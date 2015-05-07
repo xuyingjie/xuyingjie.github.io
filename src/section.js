@@ -8,11 +8,10 @@ class Section extends React.Component {
   loadIMG(data){
     ajaxArrayBuffer({
       key: data.dataset.key,
-      open,
-      uint8Arr: true,
+      arrayBuffer: true,
       success: function(rep){
 
-        let blob = new Blob([rep.buffer], {'type': data.dataset.type});
+        let blob = new Blob([rep], {'type': data.dataset.type});
         let objecturl =  URL.createObjectURL(blob);
 
         let img = document.createElement('img');
@@ -177,7 +176,7 @@ class Fragment extends React.Component {
 class Attachment extends React.Component {
 
   download(file){
-    nDown(file.name, file.type, file.key, open);
+    nDown(file.name, file.type, file.key);
   }
 
   render() {

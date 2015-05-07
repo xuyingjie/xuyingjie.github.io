@@ -43,9 +43,7 @@ class Editor extends React.Component {
   }
 
   uploadFileSuccess(key, file) {
-    var c = `
-![${file.name},${(file.size/1024).toFixed(2)}KB,${file.type},${key}]
-`;
+    var c = `\n![${file.name},${(file.size/1024).toFixed(2)}KB,${file.type},${key}]`;
 
     var textarea = document.getElementById('content');
     insertText(textarea, c);
@@ -75,7 +73,7 @@ class Editor extends React.Component {
           <button type="submit" className="btn insert right">Save</button>
         </form>
 
-        <InputFile uploadFolder="u/" open={open} uploadFileSuccess={this.uploadFileSuccess.bind(this)} />
+        <InputFile uploadFolder="u/" uploadFileSuccess={this.uploadFileSuccess.bind(this)} />
       </div>
     );
   }

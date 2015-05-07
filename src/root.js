@@ -9,7 +9,6 @@ class Root extends React.Component {
   loadSetFromServer(){
     ajaxArrayBuffer({
       key: 'set/' + this.state.version,
-      open,
       success: function(data){
 
         var contents = [];
@@ -56,7 +55,6 @@ class Root extends React.Component {
   cache(){
     ajaxArrayBuffer({
       key: 'version',
-      open,
       success: function(data){
         this.setState({version: data.version});
 
@@ -119,14 +117,12 @@ class Root extends React.Component {
 
       upload({
         key: 'set/' + version,
-        data: strToUTF8Arr(JSON.stringify({set: set})),
-        open,
+        data: JSON.stringify({set: set}),
         success: function() {
 
           upload({
             key: 'version',
-            data: strToUTF8Arr(JSON.stringify({version: version})),
-            open,
+            data: JSON.stringify({version: version}),
             success: function() {
               console.log('Save!!!');
               location.href='#/t/'+ t.id;
@@ -141,7 +137,7 @@ class Root extends React.Component {
   handleErase(key) {
     upload({
       key,
-      data: strToUTF8Arr('x'),
+      data: 'x',
       success: function() {
         console.log('Erase!!!');
         successInfo('Erase!!!');

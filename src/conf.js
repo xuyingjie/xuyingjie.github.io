@@ -21,7 +21,7 @@ const bucket = 'proc';
 // 存储前加密密钥
 const publicKey = 'GmPw2qjmTsAAUsqa';
 
-const open = true;
+// const open = true;
 
 // 返回登录前页面
 var local = '#/';
@@ -68,13 +68,13 @@ function ajaxArrayBuffer(opts) {
     if (xhr.readyState === 4) {
       if (xhr.status >= 200 && xhr.status < 300 || xhr.status === 304) {
 
-        let token = opts.token ? opts.token : (opts.open ? publicKey : localStorage.token);
-        let uint8Arr = asmCrypto.AES_CBC.decrypt(xhr.response, token);
+        var token = opts.token ? opts.token : publicKey;
+        var uint8Arr = asmCrypto.AES_CBC.decrypt(xhr.response, token);
         console.log('AES.decrypt');
-        if (opts.uint8Arr) {
-          opts.success(uint8Arr);
+        if (opts.arrayBuffer) {
+          opts.success(uint8Arr.buffer);
         } else {
-          let str = utf8ArrToStr(uint8Arr);
+          var str = utf8ArrToStr(uint8Arr);
           opts.success(JSON.parse(str));
         }
       }
@@ -109,7 +109,11 @@ function ajaxArrayBuffer(opts) {
 function upload(opts) {
   'use strict';
 
-  var token = opts.token ? opts.token : (opts.open ? publicKey : localStorage.token);
+  var token = opts.token ? opts.token : publicKey;
+
+  if (!opts.arrayBuffer) {
+    opts.data = strToUTF8Arr(opts.data);
+  }
 
   // opts.data can be ArrayBuffer or Uint8Array. strings will garbled characters.
   var uint8Arr = asmCrypto.AES_CBC.encrypt(opts.data, token);
@@ -223,16 +227,15 @@ function fileTypeIcons(type) {
   }
 }
 
-function nDown(name, type, key, open) {
+function nDown(name, type, key) {
   var progress = document.getElementById(key);
 
   ajaxArrayBuffer({
     key,
-    open,
-    uint8Arr: true,
+    arrayBuffer: true,
     progress,
     success: function(data) {
-      var blob = new Blob([data.buffer], {
+      var blob = new Blob([data], {
         'type': type
       });
       var objecturl = URL.createObjectURL(blob);

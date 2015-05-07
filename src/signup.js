@@ -16,7 +16,7 @@ class SignUp extends React.Component {
 
     upload({
       key: name,
-      data: strToUTF8Arr(JSON.stringify({user: user})),
+      data: JSON.stringify({user: user}),
       token: passwd,
       success: function() {
         console.log('Success!');

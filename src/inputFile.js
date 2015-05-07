@@ -43,7 +43,7 @@ class InputFile extends React.Component {
       upload({
         key,
         data: reader.result,
-        open: this.props.open,
+        arrayBuffer: true,
         progress: document.getElementById('upload-progress'),
         success: function() {
           this.props.uploadFileSuccess(key, file);
