@@ -32,7 +32,14 @@ class Navbar extends React.Component {
     e.preventDefault();
     var key = e.dataTransfer.getData('key');
     if (key !== ''){
-      this.props.erase(key);
+      upload({
+        key,
+        data: 'x',
+        success: function() {
+          console.log('Erase!!!');
+          successInfo('Erase!!!');
+        }.bind(this)
+      });
     }
   }
 

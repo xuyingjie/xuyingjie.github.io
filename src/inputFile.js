@@ -59,10 +59,10 @@ class InputFile extends React.Component {
     return (
       <div className="attachment">
         <input id="file" style={{display: 'none'}} type="file" multiple onChange={this.handleChange.bind(this)} />
-        <a id="file-info" className="list-group-item" onClick={this.handleClick}>
+        <a id="file-info" className="item" onClick={this.handleClick}>
           选择文件上传
         </a>
-        <div id="upload-progress" className="list-group-item progress-bar"></div>
+        <div id="upload-progress" className="item progress-bar"></div>
       </div>
     );
   }

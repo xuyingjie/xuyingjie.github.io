@@ -21,21 +21,43 @@
   <script src="http://7teaz4.com1.z0.glb.clouddn.com/js/react.js"></script>
   <script src="http://7teaz4.com1.z0.glb.clouddn.com/js/JSXTransformer.js"></script>
 
-  <script type="text/jsx;harmony=true" src="src/conf.js"></script>
+  <script type="text/jsx;harmony=true" src="src/tool.js"></script>
   <script type="text/jsx;harmony=true" src="src/navbar.js"></script>
   <script type="text/jsx;harmony=true" src="src/contents.js"></script>
   <script type="text/jsx;harmony=true" src="src/section.js"></script>
   <script type="text/jsx;harmony=true" src="src/signin.js"></script>
   <script type="text/jsx;harmony=true" src="src/signup.js"></script>
   <script type="text/jsx;harmony=true" src="src/editor.js"></script>
-  <script type="text/jsx;harmony=true" src="src/folder.js"></script>
-  <script type="text/jsx;harmony=true" src="src/tasks.js"></script>
+  <script type="text/jsx;harmony=true" src="src/attachment.js"></script>
+  <script type="text/jsx;harmony=true" src="src/inputFile.js"></script>
   <script type="text/jsx;harmony=true" src="src/root.js"></script>
 -->
 
   <script src="http://7teaz4.com1.z0.glb.clouddn.com/js/react.min.js"></script>
   <script src="app.js"></script>
   <script>
+    var siteTitle = 'Structure';
+    var bucket = 'proc';
+    var encrypt = false;
+
+    /**
+     * indexedDB
+     */
+    var db = new Dexie(bucket);
+    db.version(1).stores({
+      etc: 'id, version'
+    });
+    db.version(1).stores({
+      contents: 'id, arr'
+    });
+    db.version(1).stores({
+      set: 'id, arr'
+    });
+    db.version(1).stores({
+      section: 'id, title, content, timestamp'
+    });
+    db.open();
+
     React.render(React.createElement(Root, null), document.getElementById('wrapper'));
   </script>
 

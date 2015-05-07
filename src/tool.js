@@ -6,18 +6,12 @@
  * - scrollLoad with decrypt
  * - 多种文件格式的显示
  * - js文件合并压缩
- * - '#/tasks': 加密,修改时间排序
- * - '#/folder': asmcrypto.js 加密 {name:, path:}
  *
  * - es6
  * ! simplify function names
  * ! 用 for(var i = 0; i < a.length; i++) 取代 for(var i in a)
  */
 
-
-const siteTitle = 'Structure';
-const bucket = 'proc';
-const encrypt = false;
 
 // 返回登录前页面
 var local = '#/';
@@ -31,25 +25,6 @@ var md = window.markdownit({
   breaks: true,
   linkify: true
 });
-
-
-/**
- * indexedDB
- */
-var db = new Dexie(bucket);
-db.version(1).stores({
-  etc: 'id, version'
-});
-db.version(1).stores({
-  contents: 'id, arr'
-});
-db.version(1).stores({
-  set: 'id, arr'
-});
-db.version(1).stores({
-  section: 'id, title, content, timestamp'
-});
-db.open();
 
 
 /*
@@ -93,7 +68,7 @@ function ajaxArrayBuffer(opts) {
     };
   }
 
-  if (opts.key.match('version') !== null || opts.key === 'folder/list') {
+  if (opts.key.match('version') !== null) {
     opts.key += '?v=' + Date.now();
   }
 
@@ -223,44 +198,6 @@ function fileTypeIcons(type) {
     default:
       return 'fa fa-file-o';
   }
-}
-
-function nDown(name, type, key) {
-  var progress = document.getElementById(key);
-
-  ajaxArrayBuffer({
-    key,
-    arrayBuffer: true,
-    progress,
-    success: function(data) {
-      var blob = new Blob([data], {
-        'type': type
-      });
-      var objecturl = URL.createObjectURL(blob);
-
-      // 生成下载
-      var anchor = document.createElement('a');
-      anchor.href = objecturl;
-
-      // 新标签页打开
-      // anchor.target = '_blank';
-
-      // 直接下载
-      anchor.download = name;
-
-      document.body.appendChild(anchor);
-      var evt = document.createEvent('MouseEvents');
-      evt.initEvent('click', true, true);
-      anchor.dispatchEvent(evt);
-      document.body.removeChild(anchor);
-
-      progress.value = 0;
-    }
-  });
-}
-
-function dragStart(e) {
-  e.dataTransfer.setData('key', e.target.dataset.key);
 }
 
 function successInfo(info) {

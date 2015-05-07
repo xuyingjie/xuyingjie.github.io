@@ -134,25 +134,6 @@ class Root extends React.Component {
     }
   }
 
-  handleErase(key) {
-    upload({
-      key,
-      data: 'x',
-      success: function() {
-        console.log('Erase!!!');
-        successInfo('Erase!!!');
-        this.setState({erase: true});
-        this.setState({erase: true});
-        // this.setState({erase: true});
-        // this.setState({erase: true});
-      }.bind(this)
-    });
-  }
-
-  handleEraseEnd() {
-    this.setState({erase: false});
-  }
-
   handleLogin() {
     this.setState({auth: true});
     if (local === '#/login') {
@@ -205,7 +186,7 @@ class Root extends React.Component {
 
     return (
       <div>
-        <Navbar auth={this.state.auth} logout={this.handleLogout.bind(this)} erase={this.handleErase.bind(this)} />
+        <Navbar auth={this.state.auth} logout={this.handleLogout.bind(this)} />
         {page}
       </div>
       );

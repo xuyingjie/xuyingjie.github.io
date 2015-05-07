@@ -5,30 +5,36 @@ class Section extends React.Component {
     this.state = {section: [], keyword: ''};
   }
 
+  dragStart(e) {
+    var key = e.target.dataset.key;
+    e.dataTransfer.setData('key', key);
+  }
+
   loadIMG(data){
     ajaxArrayBuffer({
       key: data.dataset.key,
       arrayBuffer: true,
-      success: function(rep){
+      success: function(rep) {
 
-        let blob = new Blob([rep], {'type': data.dataset.type});
-        let objecturl =  URL.createObjectURL(blob);
+        var blob = new Blob([rep], {'type': data.dataset.type});
+        var objecturl =  URL.createObjectURL(blob);
 
-        let img = document.createElement('img');
+        var img = document.createElement('img');
         img.src = objecturl;
+        img.title = data.dataset.name;
 
         img.dataset.key = data.dataset.key;
-        img.ondragstart = dragStart;
+        img.ondragstart = this.dragStart;
 
         data.replaceChild(img, data.firstElementChild);
         data.setAttribute('name', 'dec-img');
-      }
+      }.bind(this)
     });
   }
 
   imgEvent() {
     var encIMG = document.getElementsByName('enc-img');
-console.log('a');
+// console.log('a');
     for (let i = 0; i < encIMG.length; i++){
       let top = encIMG[i].getBoundingClientRect().top;
       if ( top > 0 && top < window.innerHeight){
@@ -39,7 +45,7 @@ console.log('a');
 
   query() {
 
-    let params = {
+    var params = {
       id: '',
       keyword: ''
     };
@@ -113,7 +119,7 @@ console.log('a');
     return (
       <div>
       {this.state.section.map(function(x){
-        return <Fragment key={x.id} data={x} auth={this.props.auth} />;
+        return <Fragment key={x.id} data={x} auth={this.props.auth} dragStart={this.dragStart.bind(this)} />;
       }.bind(this))}
       </div>
     );
@@ -123,9 +129,9 @@ console.log('a');
 class Fragment extends React.Component {
   render() {
     var x = this.props.data;
-    var button = <div></div>;
+    var title = <h1>{x.title}</h1>;
     if(this.props.auth){
-      button = <div><a href={"#/e/" + x.id}>编辑</a></div>;
+      title = <h1><a href={"#/e/" + x.id} title="编辑">{x.title}</a></h1>;
     }
 
     // 处理Markdown文本中 ![name, type, size, key] 标记
@@ -134,21 +140,10 @@ class Fragment extends React.Component {
       if (i % 2 === 0) {
         if (parts[i] !== '') {
           var rawMarkup = md.render(parts[i]);
-          parts[i] = <div dangerouslySetInnerHTML={{__html: rawMarkup}}></div>;
+          parts[i] = <section dangerouslySetInnerHTML={{__html: rawMarkup}}></section>;
         }
       } else {
-        let m = parts[i].match(/!\[(.*?),(.*?),(.*?),(.*?)\]/);
-
-        // 省略过长的name
-        if (m[1].length > 12) {
-          if (m[1].match(/[\u4e00-\u9fa5]/)) {
-            m[1] = m[1].substring(0, 11) + '...';
-          } else {
-            if (m[1].length > 21) {
-              m[1] = m[1].substring(0, 18) + '...';
-            }
-          }
-        }
+        var m = parts[i].match(/!\[(.*?),(.*?),(.*?),(.*?)\]/);
 
         var data = {
           name: m[1],
@@ -156,50 +151,18 @@ class Fragment extends React.Component {
           type: m[3],
           key: m[4]
         };
-        parts[i] =  <Attachment data={data} />;
+        parts[i] =  <Attachment data={data} dragStart={this.props.dragStart} />;
       }
     }
 
     return (
       <div>
-        <div className="wrap">
-          <h1>{x.title}</h1>
+        <article className="wrap">
+          {title}
           {parts}
-          {button}
-        </div>
+        </article>
         <hr />
       </div>
     );
-  }
-}
-
-class Attachment extends React.Component {
-
-  download(file){
-    nDown(file.name, file.type, file.key);
-  }
-
-  render() {
-    var x = this.props.data;
-    var c;
-    var inline = {
-      display: 'inline-block'
-    };
-
-    if (x.type === 'image/png' || x.type === 'image/jpeg' || x.type === 'image/vnd.microsoft.icon'){
-      c = (
-        <div name="enc-img" data-name={x.name} data-type={x.type} data-key={x.key}>
-          <i className="fa fa-spinner fa-pulse fa-2x"></i>
-        </div>
-      );
-    } else {
-      c = (
-        <div className="attachment">
-          <File key={x.key} data={x} download={this.download.bind(this, x)} />
-        </div>
-      );
-    }
-
-    return <div style={inline}>{c}</div>;
   }
 }

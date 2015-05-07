@@ -6,7 +6,7 @@ class Editor extends React.Component {
   }
 
   tick() {
-    let paramsID = location.hash.slice(4);
+    var paramsID = location.hash.slice(4);
 
     if (paramsID) {
       db.section.get(paramsID, function(data){

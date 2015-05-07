@@ -86,6 +86,13 @@ a:focus {
   outline: none;
 }
 
+h1 a {
+  color: rgba(0, 0, 0, 0.54);
+}
+h1 a:hover, h1 a:focus {
+  color: rgba(0, 0, 0, 0.54);
+  text-decoration: none;
+}
 
 /** Blockquotes */
 blockquote {
@@ -293,29 +300,16 @@ textarea.form-control {
 // progress::-webkit-progress-bar { background: transparent; }
 
 
-/**   */
-.tasks {
-  font-family: $code-fonts;
-  padding: 6px 12px;
-  line-height: 1.42857;
-  box-shadow: $main-shadow;
-}
 
-
-ul.list-group {
-  margin-left: 0px;
-  margin-top: 15px;
-  box-shadow: $main-shadow;
-}
-a.list-group-item {
+a.item {
   color: $font-color;
   text-decoration: none;
   background: rgba(255, 255, 255, 0.75) none repeat scroll;
 }
-a.list-group-item:hover, a.list-group-item:focus {
+a.item:hover, a.item:focus {
   background-color: rgba(230, 230, 230, 0.75);
 }
-.list-group-item {
+.item {
   position: relative;
   display: block;
   cursor: pointer;
