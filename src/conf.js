@@ -17,11 +17,7 @@
 
 const siteTitle = 'Structure';
 const bucket = 'proc';
-
-// 存储前加密密钥
-const publicKey = 'GmPw2qjmTsAAUsqa';
-
-// const open = true;
+const encrypt = false;
 
 // 返回登录前页面
 var local = '#/';
@@ -68,13 +64,16 @@ function ajaxArrayBuffer(opts) {
     if (xhr.readyState === 4) {
       if (xhr.status >= 200 && xhr.status < 300 || xhr.status === 304) {
 
-        var token = opts.token ? opts.token : publicKey;
-        var uint8Arr = asmCrypto.AES_CBC.decrypt(xhr.response, token);
-        console.log('AES.decrypt');
+        var res = xhr.response;
+        if (encrypt || opts.token) {
+          var token = opts.token ? opts.token : localStorage.token;
+          res = asmCrypto.AES_CBC.decrypt(xhr.response, token).buffer;
+        }
+
         if (opts.arrayBuffer) {
-          opts.success(uint8Arr.buffer);
+          opts.success(res);
         } else {
-          var str = utf8ArrToStr(uint8Arr);
+          var str = utf8ArrToStr(new Uint8Array(res));
           opts.success(JSON.parse(str));
         }
       }
@@ -109,20 +108,19 @@ function ajaxArrayBuffer(opts) {
 function upload(opts) {
   'use strict';
 
-  var token = opts.token ? opts.token : publicKey;
-
   if (!opts.arrayBuffer) {
-    opts.data = strToUTF8Arr(opts.data);
+    opts.data = strToUTF8Arr(opts.data).buffer;
   }
 
-  // opts.data can be ArrayBuffer or Uint8Array. strings will garbled characters.
-  var uint8Arr = asmCrypto.AES_CBC.encrypt(opts.data, token);
-  console.log('AES.encrypt');
+  if (encrypt || opts.token) {
+    var token = opts.token ? opts.token : localStorage.token;
+
+    // opts.data can be ArrayBuffer or Uint8Array. strings will garbled characters.
+    opts.data = asmCrypto.AES_CBC.encrypt(opts.data, token).buffer;
+  }
 
   // new Blob([encList.buffer]) fast than new Blob([encList]) type不是必需的
-  var blob = new Blob([uint8Arr.buffer], {
-    type: 'application/octet-stream'
-  });
+  var blob = new Blob([opts.data]);
 
   var formData = customForm(opts, blob);
 
@@ -293,6 +291,22 @@ function successInfo(info) {
 function timeDiff() {
   return Date.now() + '' + Math.floor(Math.random() * 9000 + 1000); // 或加入IP
 }
+
+// function arrayBufferToStr(buf) {
+//   'use strict';
+//   return String.fromCharCode.apply(null, new Uint16Array(buf));
+// }
+//
+// function strToArrayBuffer(str) {
+//   'use strict';
+//
+//   var buf = new ArrayBuffer(str.length * 2);
+//   var bufView = new Uint16Array(buf);
+//   for (let i = 0, strLen = str.length; i < strLen; i++) {
+//     bufView[i] = str.charCodeAt(i);
+//   }
+//   return buf;
+// }
 
 
 /*\
