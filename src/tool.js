@@ -72,7 +72,7 @@ function ajaxArrayBuffer(opts) {
     opts.key += '?v=' + Date.now();
   }
 
-  xhr.open('GET', 'http://7teaz4.com1.z0.glb.clouddn.com/' + opts.key, true);
+  xhr.open('GET', url + opts.key, true);
 
   // in firefox xhr.responseType must behind xhr.open
   xhr.responseType = 'arraybuffer';
