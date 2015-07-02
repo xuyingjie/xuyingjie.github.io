@@ -1,14 +1,23 @@
 var gulp = require('gulp');
-// var jshint = require('gulp-jshint');
 var uglify = require('gulp-uglify');
 var concat = require('gulp-concat');
+var rename = require('gulp-rename');
 var babel = require('gulp-babel');
 
-gulp.task('default', function() {
-  return gulp.src(['build/*.js'])
+gulp.task('make', function() {
+  return gulp.src(['src/*.js'])
     .pipe(babel())
-    // .pipe(jshint())
-    .pipe(uglify())
     .pipe(concat('app.js'))
+    .pipe(gulp.dest('.'))
+    .pipe(rename('app.min.js'))
+    .pipe(uglify())
     .pipe(gulp.dest('.'));
+});
+
+gulp.task('default', ['make'], function() {
+  // gulp.watch('src/*.js', ['init']);
+  var watcher = gulp.watch('src/*.js', ['make']);
+  watcher.on('change', function(event) {
+    console.log('File ' + event.path + ' was ' + event.type + ', running tasks...');
+  });
 });
