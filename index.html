@@ -1,50 +1,14 @@
 <!DOCTYPE html>
-<html lang="zh-Hans">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <title>#structure</title>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>#set</title>
+    <link rel="stylesheet" href="http://7xr3kl.com1.z0.glb.clouddn.com/base.css">
+  </head>
+  <body>
+    <component :is="currentView" :set="filterSet" :auth="auth" :page="page" :has-more="hasMore"></component>
 
-  <link rel="icon" type="image/png" href="http://7teaz4.com1.z0.glb.clouddn.com/structure.png">
-  <link rel="stylesheet" href="http://7teaz4.com1.z0.glb.clouddn.com/css/font-awesome.min.css">
-  <link rel="stylesheet" href="app.css">
-</head>
-
-<body>
-  <div id="wrapper"></div>
-
-  <script src="http://7teaz4.com1.z0.glb.clouddn.com/js/Dexie.min.js"></script>
-  <script src="http://7teaz4.com1.z0.glb.clouddn.com/js/markdown-it.min.js"></script>
-  <script src="http://7teaz4.com1.z0.glb.clouddn.com/js/asmcrypto.js"></script>
-
-  <script src="http://7teaz4.com1.z0.glb.clouddn.com/js/react.min.js"></script>
-  <script src="app.min.js"></script>
-  <script>
-    var siteTitle = 'Structure';
-    var bucket = 'proc';
-    var url = 'http://7teaz4.com1.z0.glb.clouddn.com/';
-    var encrypt = false;
-
-    /**
-     * indexedDB
-     */
-    var db = new Dexie(bucket);
-    db.version(1).stores({
-      etc: 'id, version'
-    });
-    db.version(1).stores({
-      contents: 'id, arr'
-    });
-    db.version(1).stores({
-      set: 'id, arr'
-    });
-    db.version(1).stores({
-      section: 'id, title, content, timestamp'
-    });
-    db.open();
-
-    React.render(React.createElement(Root, null), document.getElementById('wrapper'));
-  </script>
-
-</body>
+    <script src="http://7xr3kl.com1.z0.glb.clouddn.com/build.js" charset="utf-8"></script>
+  </body>
 </html>
